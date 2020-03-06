@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 // });
 
 Route::group([
-	'prefix' => 'v1',
+	'prefix' => 'v1/users',
 ], function() {
-	Route::post('signup', 'AccountsController@signup');
+	Route::post('/', 'UsersController@signup');
 });
