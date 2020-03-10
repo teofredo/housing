@@ -11,8 +11,10 @@ use App\Services\ErrorResponse;
 
 class UsersController extends Controller
 {
-    public function signup(Request $request, UserValidator $validator)
-    {
+    public function signup(
+    	Request $request, 
+    	UserValidator $validator
+    ) {
     	try {
 	    	$validator->validate($request->all());
 	    	
