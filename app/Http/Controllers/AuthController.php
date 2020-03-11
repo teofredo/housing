@@ -17,17 +17,33 @@ class AuthController extends Controller
         AuthApiService $authApiService
     ) {
         try {
+            $data = $request->all();
+            
+            $data = array_merge($data, [
+                'grant_type' => 'password',
+            ]);
+            
             $response = $authApiService
-                ->setReqData($request->all())
-                ->getRequestToken();
+                ->setReqData($data)
+                ->getToken();
                 
-            return response()
-                ->json($response)
+            return response($response, 200)
                 ->header('Access-Control-Allow-Origin', 'passport.test')
                 ->header('Access-Control-Allow-Methods', 'POST');
         } 
         catch(\Exception $e) {}
-        catch(\GuzzleHttp\Exception\BadResponseException $e) {}
+        
+        $errorResponse = new ErrorResponse($e);
+        
+        return $errorResponse->toJson();
+    }
+    
+    public function user(Request $request)
+    {
+        try {
+            return Auth::user();
+        }
+        catch(\Exception $e) {}
         
         $errorResponse = new ErrorResponse($e);
         

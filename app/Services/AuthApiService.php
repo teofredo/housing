@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Arr;
+use App\Services\CurlService;
 
 class AuthApiService
 {
@@ -16,10 +17,10 @@ class AuthApiService
 			'scope' => '*'
 		];
 		
-		$this->http = new \GuzzleHttp\Client;
+		$this->curlService = new CurlService;
 	}
 	
-	public function getRequestToken()
+	public function getToken()
 	{
 		$reqData = $this->getReqDataByGrantType();
 		
@@ -27,15 +28,7 @@ class AuthApiService
 			throw new \Exception('invalid request data');
 		}
 		
-		$response = $this->http->post("{$this->authUrl}/oauth/token", [
-			'form_params' => $reqData
-		]);
-		
-		if(!$response) {
-			return [];
-		}
-		
-		return $response->getBody();
+		return $this->curlService->httpPost("{$this->authUrl}/oauth/token", $reqData);
 	}
 	
 	private function getReqDataByGrantType()
