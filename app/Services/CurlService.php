@@ -3,11 +3,6 @@ namespace App\Services;
 
 class CurlService
 {
-	public function __construct()
-	{
-		//
-	}
-
 	public function httpPost($endpoint, array $request, array $headers = [])
 	{
 		$ch = curl_init($endpoint);

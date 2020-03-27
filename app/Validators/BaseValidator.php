@@ -20,9 +20,4 @@ abstract class BaseValidator
 		
 		return true;
 	}
-	
-	public function getErrors()
-	{
-		
-	}
 }

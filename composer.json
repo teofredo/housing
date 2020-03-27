@@ -12,7 +12,8 @@
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^6.0",
         "laravel/passport": "^8.4",
-        "laravel/tinker": "^1.0"
+        "laravel/tinker": "^1.0",
+        "league/fractal": "^0.19.2"
     },
     "require-dev": {
         "facade/ignition": "^1.4",
