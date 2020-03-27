@@ -13,7 +13,7 @@
         "laravel/framework": "^6.0",
         "laravel/passport": "^8.4",
         "laravel/tinker": "^1.0",
-	"symfony/translation": "4.3.8"	
+        "league/fractal": "^0.19.2"
     },
     "require-dev": {
         "facade/ignition": "^1.4",
@@ -39,6 +39,9 @@
         "classmap": [
             "database/seeds",
             "database/factories"
+        ],
+        "files": [
+            "app/helpers.php"
         ]
     },
     "autoload-dev": {
