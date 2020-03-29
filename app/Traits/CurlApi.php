@@ -10,6 +10,8 @@ trait CurlApi
 	
 	private $data = [];
 	
+	private $response;
+	
 	public function withHeaders(array $headers=[])
 	{
 		$this->headers = $headers;
@@ -74,7 +76,9 @@ trait CurlApi
 		
 		curl_close($ch);
 		
-		return $response;
+		$this->response = $response;
+		
+		return $this;
 	}
 	
 	public function httpGet($endpoint, array $request, array $headers = [])
@@ -104,6 +108,23 @@ trait CurlApi
 		
 		curl_close($ch);
 		
-		return $response;
+		$this->response = $response;
+		
+		return $this;
+	}
+	
+	public function get()
+	{
+		return json_decode($this->response);
+	}
+	
+	public function getArray()
+	{
+		return json_decode($this->response, true);
+	}
+	
+	public function getJson()
+	{
+		return $this->response;
 	}
 }

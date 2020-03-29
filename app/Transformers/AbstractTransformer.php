@@ -21,7 +21,7 @@ abstract class AbstractTransformer extends Fractal\TransformerAbstract
 				continue;
 			}
 
-			$response[$column] = $model->$column;
+			$response[$field] = $model->$field;
 		}
 
 		return $response;
