@@ -2,13 +2,21 @@
 namespace App\Services;
 
 use Illuminate\Support\Arr;
-use App\Services\CurlService;
+use App\Traits\CurlApi;
 
 class AuthApiService
 {
+	use CurlApi;
+	
+	private $oauthUrl;
+	
+	private $resourceUrl;
+	
 	public function __construct()
 	{
-		$this->authUrl = env('AUTH_URL');
+		$this->oauthUrl = env('OAUTH_URL');
+		
+		$this->resourceUrl = env('RESOURCE_URL');
 		
 		$this->reqData = [
 			'grant_type' => 'client_credentials',
@@ -16,8 +24,6 @@ class AuthApiService
 			'client_secret' => env('CLIENT_SECRET'),
 			'scope' => '*'
 		];
-		
-		$this->curlService = new CurlService;
 	}
 	
 	public function getToken()
@@ -28,7 +34,7 @@ class AuthApiService
 			throw new \Exception('invalid request data');
 		}
 		
-		return $this->curlService->httpPost("{$this->authUrl}/oauth/token", $reqData);
+		return $this->httpPost("{$this->oauthUrl}/oauth/token", $reqData);
 	}
 	
 	private function getReqDataByGrantType()
