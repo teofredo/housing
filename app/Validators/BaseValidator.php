@@ -10,9 +10,12 @@ abstract class BaseValidator
 	
 	private $data;
 	
-	public function validate($data)
+	public function validate(array $data=[], array $rules=[], array $messages=[])
 	{
-		$this->validator = Validator::make($data, $this->rules, $this->messages);
+		$rules = $rules ?? $this->rules;
+		$messages = $messages ?? $this->messages;
+		
+		$this->validator = Validator::make($data, $rules, $messages);
 		
 		if($this->validator->fails()) {
 			throw new ValidationException($this->validator->errors());

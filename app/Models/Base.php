@@ -5,7 +5,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Base extends Model
 {
-	public $timestamps = false;
+	public $timestamps = true;
+	
+	protected $guarded = [];
 	
 	public function getTableColumns()
     {

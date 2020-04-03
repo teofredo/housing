@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAccessTokensTable extends Migration
+class CreateWaterReadingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,21 +13,18 @@ class CreateAccessTokensTable extends Migration
      */
     public function up()
     {
-        Schema::create('access_tokens', function (Blueprint $table) {
+        Schema::create('water_readings', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('user_id')
+            $table->integer('account_id');
+            $table->string('house_no');
+            $table->string('meter_no')
                 ->nullable()
                 ->default(null);
                 
-            $table->mediumText('access_token');
-            $table->mediumText('refresh_token')
-                ->nullable()
-                ->default(null);
-                
-            $table->dateTime('expired_at')
-                ->nullable()
-                ->default(null);
-                
+            $table->float('consumption', 10, 2);
+            $table->date('effective_date');
+            $table->dateTime('date_read');
+            $table->string('reader_id');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -40,6 +37,6 @@ class CreateAccessTokensTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('access_tokens');
+        Schema::dropIfExists('water_readings');
     }
 }

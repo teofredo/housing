@@ -78,13 +78,36 @@ class Controller extends BaseController
 
     		$resource = $this->model->find($id);
     		return $this->fractal
-    			->item($resource, new $this->transformer)
+    			->item($resource, $this->transformer)
     			->includes($includes)
     			->get();
 
         } catch(\Exception $e) {}
 
         throw $e;
+    }
+    
+    public function post(Request $request)
+    {
+        try {
+            $data = $request->all();
+            
+            $validator = $this->validator ?? null;
+            if($validator) {
+                $this->validator = new $validator;
+                $this->validator->validate($data);
+            } 
+            
+            $resource = $this->model->create($data);
+            $resource = $this->fractal->item($resource, $this->transformer)->get();
+            
+            return response($resource);
+            
+        } catch(\Exception $e) {}
+        
+        $errorResponse = new ErrorResponse($e);
+        
+        return $errorResponse->toJson();   
     }
     
     public function requestToken(
