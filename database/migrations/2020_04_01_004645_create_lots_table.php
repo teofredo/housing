@@ -19,7 +19,7 @@ class CreateLotsTable extends Migration
             $table->string('name');
             $table->timestamps();
             $table->softDeletes();
-            $table->unique(['block_id', 'name']);
+            $table->unique(['block_id', 'name', 'deleted_at']);
         });
     }
 

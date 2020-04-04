@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Account;
 use App\Transformers\AccountTransformer;
 use App\Validators\AccountValidator;
-use App\Services\AccountService;
+use App\Services\{
+    AccountService,
+    ErrorResponse
+};
 use Illuminate\Support\Facades\DB;
 
 class AccountsController extends Controller
@@ -20,7 +23,7 @@ class AccountsController extends Controller
     	return parent::index($id, $request);
     }
     
-    public function post(
+    public function postOverride(
     	Request $request,
     	AccountValidator $validator,
     	AccountService $accountService)
@@ -32,11 +35,10 @@ class AccountsController extends Controller
     		
     		DB::beginTransaction();
     		
-    		$account = $accountService->createAccount();
-    		
-    		DB::commit();
-    		
-    		$resource = $this->fractal->item($account, $this->transformer)->get();
+    		$resource = $accountService->createAccount($data);
+    		$resource = $this->fractal->item($resource, $this->transformer)->get();
+            
+            DB::commit();
     		
     		return response($resource);
     		

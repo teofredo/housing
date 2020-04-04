@@ -46,3 +46,15 @@ Route::group([
 	Route::get('/{id?}', 'LotsController@index');
 	Route::post('/', 'LotsController@post');
 });
+
+//accounts
+Route::group([
+	'prefix' => 'v1/accounts',
+	'middleware' => [
+		'auth:api',
+		// 'throttle:60,1'
+	]
+], function() {
+	Route::get('/{id?}', 'AccountsController@index');
+	Route::post('/', 'AccountsController@postOverride');
+});

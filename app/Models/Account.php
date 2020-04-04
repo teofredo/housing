@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Account extends Model
+class Account extends Base
 {
     protected $primaryKey = 'account_id';
     
-    public function resident()
+    public function householder()
     {
-    	return $this->hasOne(__NAMESPACE__ . '\\Resident', 'account_id');
+    	return $this->hasOne(__NAMESPACE__ . '\\Householder', 'account_id');
     }
 }

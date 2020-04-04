@@ -4,25 +4,38 @@ namespace App\Validators;
 class AccountValidator extends BaseValidator
 {
 	protected $rules = [
-		'parent_id' => 'sometimes|integer',
+		'email' => 'required|string|unique:accounts,email',
+		'password' => 'required|string',
+		
+		//householder rules
+		'householder_type' => 'required|in:owner,tenant',
 		'lastname' => 'required|string',
 		'firstname' => 'required|string',
 		'middlename' => 'sometimes|string',
 		'suffix' => 'sometimes|string',
-		'email' => 'required|string|email',
-		'username' => 'required|string',
-		'password' => 'required|string'
+		'contact_no' => 'required|string',
+		'block_id' => 'required|integer',
+		'lot_id' => 'required|integer',
+		'house_no' => 'sometimes|string',
+		'moved_in' => 'sometimes|string'
 	];
 	
 	protected $messages = [
-		'parent_id.integer' => 'parent_id must be integer',
-		'lastname.required' => 'lastname is required',
-		'firstname.required' => 'firstname is required',
-		'middlename.required' => 'middlename is required',
 		'email.required' => 'email is required',
 		'email.email' => 'invalid email address',
-		'username.required' => 'username is required',
-		'password.required' => 'password is required'
+		'email.unique' => 'email address is already taken',
+		'password.required' => 'password is required',
+		
+		//householder feedbacks
+		'householder_type.required' => 'householder_type is required',
+		'householder_type.in' => 'invalid householder_type',
+		'lastname.required' => 'lastname is required',
+		'firstname.required' => 'firstname is required',
+		'contact_no.required' => 'contact_no is required',
+		'block_id.required' => 'block_id is required',
+		'block_id.integer' => 'block_id must be integer',
+		'lot_id.required' => 'lot_id is required',
+		'lot_id.integer' => 'lot_id must be integer'
 	];
 	
 	public static $custom = [

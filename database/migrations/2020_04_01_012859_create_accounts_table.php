@@ -15,15 +15,18 @@ class CreateAccountsTable extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->bigIncrements('account_id');
-            $table->string('account_no', 12);
+            $table->string('account_no', 15)
+                ->nullable()
+                ->default(null);
+                
             $table->integer('parent_id')
                 ->nullable()
                 ->default(null);
                 
-            $table->string('lastname');
-            $table->string('firstname');
-            $table->string('middlename');
-            $table->string('suffix');
+            $table->string('account_name')
+                ->nullable()
+                ->default(null);
+                
             $table->string('email', 100);
             
             $table->string('username', 100)
@@ -38,7 +41,14 @@ class CreateAccountsTable extends Migration
                 ->nullable()
                 ->default(null);
                 
-            $table->enum('active', [0, 1])->default(0);
+            $table->enum('status', ['pending', 'active', 'inactive', 'deactivated', 'transferred'])->default('active');
+            $table->dateTime('transferred_at')
+                ->nullable()
+                ->default(null);
+                
+            $table->integer('transferred_to')
+                ->comment('account_id');
+            
             $table->timestamps();
             $table->softDeletes();
         });

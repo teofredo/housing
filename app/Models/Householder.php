@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Resident extends Model
+class Householder extends Base
 {
-    protected $primaryKey = 'resident_id';
+    protected $primaryKey = 'householder_id';
     
     public function lot()
     {

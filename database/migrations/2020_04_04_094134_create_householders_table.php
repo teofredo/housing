@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateResidentsTable extends Migration
+class CreateHouseholdersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,14 @@ class CreateResidentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('residents', function (Blueprint $table) {
-            $table->bigIncrements('resident_id');
+        Schema::create('householders', function (Blueprint $table) {
+            $table->bigIncrements('householder_id');
             $table->integer('account_id')->unique();
-            $table->string('house_no', 30)->unique();
+            $table->string('house_no', 30)
+                ->nullable()
+                ->default(null);
+                
+            $table->enum('type', ['owner', 'tenant']);
                 
             $table->integer('block_id')
                 ->nullable()
@@ -26,11 +30,8 @@ class CreateResidentsTable extends Migration
                 ->nullable()
                 ->default(null);
                 
-            $table->string('name')
-                ->nullable()
-                ->default(null);
-                
-            $table->string('email')
+            $table->mediumText('name')
+                ->comment('json format first,last,middle,suffix')
                 ->nullable()
                 ->default(null);
                 
@@ -41,13 +42,15 @@ class CreateResidentsTable extends Migration
             $table->date('moved_in')
                 ->nullable()
                 ->default(null);
-                                
-            $table->enum('active', [0, 1])->default(1);
-            $table->mediumText('remarks');
+            
+            $table->string('remarks')
+                ->nullable()
+                ->default(null);
+                
             $table->timestamps();
             $table->softDeletes();
             
-            $table->unique(['block_id', 'lot_id']);
+            $table->unique(['block_id', 'lot_id', 'deleted_at']);
         });
     }
 
@@ -58,6 +61,6 @@ class CreateResidentsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('residents');
+        Schema::dropIfExists('householders');
     }
 }
