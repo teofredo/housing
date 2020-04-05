@@ -34,7 +34,7 @@ class AuthApiService
 			throw new \Exception('invalid request data');
 		}
 		
-		return $this->httpPost("{$this->oauthUrl}/oauth/token", $reqData);
+		return $this->httpPost("{$this->oauthUrl}/oauth/token", $reqData)->get();
 	}
 	
 	private function getReqDataByGrantType()
@@ -58,5 +58,24 @@ class AuthApiService
 	{
 		$this->reqData = array_merge($this->reqData, $data);
 		return $this;
+	}
+	
+	public function getUserByAccessToken($accessToken)
+	{
+		$endpoint = env('OAUTH_URL') . '/api/v1/user';
+        $request = [];
+        $headers = ["Authorization: Bearer {$accessToken}"];
+        
+        $response = $this->httpGet($endpoint, $request, $headers)->get();
+        
+        if(isset($response->error)) {
+            throw new \Exception('Unauthenticated');
+        }
+        
+        if(empty($response->id)) {
+            throw new \Exception('Unauthenticated');    
+        }
+        
+        return $response;
 	}
 }

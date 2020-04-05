@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAccessTokensTable extends Migration
+class CreateFeesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,18 +13,14 @@ class CreateAccessTokensTable extends Migration
      */
     public function up()
     {
-        Schema::create('access_tokens', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->integer('user_id')
-                ->nullable()
-                ->default(null);
+        Schema::create('fees', function (Blueprint $table) {
+            $table->increments('fee_id');
+            $table->string('name');
+            $table->decimal('fee', 10, 2);
+            $table->enum('other_fee', [0, 1])
+                ->default(0);
                 
-            $table->mediumText('access_token');
-            $table->mediumText('refresh_token')
-                ->nullable()
-                ->default(null);
-                
-            $table->dateTime('expired_at')
+            $table->mediumText('description')
                 ->nullable()
                 ->default(null);
                 
@@ -40,6 +36,6 @@ class CreateAccessTokensTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('access_tokens');
+        Schema::dropIfExists('fees');
     }
 }

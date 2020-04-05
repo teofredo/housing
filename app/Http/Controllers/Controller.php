@@ -10,14 +10,23 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Services\{
     FractalService,
-    ErrorResponse
+    ErrorResponse,
+    AuthApiService
 };
+
+use Illuminate\Support\Carbon;
 
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     protected $fractal;
+    
+    protected $authApiService;
+    
+    private $authUser;
+    
+    private $vConstraints = [];
 
     public function __construct(
     	FractalService $fractal)
@@ -25,6 +34,8 @@ class Controller extends BaseController
     	$this->fractal = $fractal;
 
         $this->initForResource();
+        
+        $this->authApiService = new AuthApiService;
     }
 
     private function initForResource()
@@ -69,12 +80,82 @@ class Controller extends BaseController
 
     		$resource = $this->model->find($id);
     		return $this->fractal
-    			->item($resource, new $this->transformer)
+    			->item($resource, $this->transformer)
     			->includes($includes)
     			->get();
 
         } catch(\Exception $e) {}
 
         throw $e;
+    }
+    
+    public function post(Request $request)
+    {
+        try {
+            $data = $request->all();
+            
+            $validator = $this->validator ?? null;
+            if($validator) {
+                $this->validator = new $validator;
+                $this->validator
+                    ->setConstraints($this->vConstraints)
+                    ->validate($data);
+            } 
+            
+            $resource = $this->model->create($data);
+            $resource = $this->fractal->item($resource, $this->transformer)->get();
+            
+            return response($resource);
+            
+        } catch(\Exception $e) {}
+        
+        $errorResponse = new ErrorResponse($e);
+        
+        return $errorResponse->toJson();   
+    }
+    
+    public function requestToken(
+        $grantType='client_credentials', 
+        array $data=[])
+    {
+        try {
+            $data = array_merge($data, [
+                'grant_type' => $grantType ?? 'password',
+            ]);
+            
+            $token = $this->authApiService
+                ->setReqData($data)
+                ->getToken();
+                
+            if($data['grant_type'] == 'password') {
+                $this->authUser = $this->authApiService->getUserByAccessToken($token->access_token);
+            }
+            
+            \App\Models\AccessToken::create([
+                'user_id' => $this->authUser->id ?? null,
+                'access_token' => $token->access_token,
+                'refresh_token' => $token->refresh_token ?? null,
+                'expired_at' => Carbon::createFromTimestamp(time() + $token->expires_in)
+            ]);
+            
+            return $token;
+            
+        } catch(\Exception $e) {}
+        
+        throw $e;
+    }
+    
+    protected function getAuthUser()
+    {
+        return $this->authUser;
+    }
+    
+    /**
+    * set validator constraints
+    */
+    protected function setVConstraints(array $constraints=[])
+    {
+        $this->vConstraints = $constraints;
+        return $this;
     }
 }

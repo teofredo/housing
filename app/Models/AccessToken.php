@@ -9,6 +9,4 @@ class AccessToken extends Base
 	use SoftDeletes;
 	
     public $timestamps = true;
-    
-    protected $fillable = ['user_id', 'access_token', 'refresh_token', 'expired_at'];
 }
