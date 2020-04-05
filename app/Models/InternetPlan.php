@@ -1,10 +1,12 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class InternetPlan extends Model
+class InternetPlan extends Base
 {
     protected $primaryKey = 'plan_id';
+    
+    public function subscribers()
+    {
+    	//
+    }
 }

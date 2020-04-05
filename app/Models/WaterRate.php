@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class WaterRate extends Model
+class WaterRate extends Base
 {
     //
 }

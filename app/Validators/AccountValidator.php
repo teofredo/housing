@@ -35,12 +35,12 @@ class AccountValidator extends BaseValidator
 		'block_id.required' => 'block_id is required',
 		'block_id.integer' => 'block_id must be integer',
 		'lot_id.required' => 'lot_id is required',
-		'lot_id.integer' => 'lot_id must be integer'
+		'lot_id.integer' => 'lot_id must be integer',
+		'lot_id.unique' => 'the unit has already been taken'
 	];
 	
 	protected function overrideRules()
 	{
 		$this->rules['lot_id'] = "required|integer|unique:App\Models\Householder,lot_id,NULL,id,block_id,{$this->constraints['block_id']},deleted_at,NULL";
-		$this->messages['lot_id.unique'] = 'the unit has already been taken';
 	}
 }

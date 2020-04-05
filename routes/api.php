@@ -1,60 +1,52 @@
 <?php
 
-use Illuminate\Http\Request;
-
 Route::group([
 	'prefix' => 'v1',
 	'middleware' => [
-		'auth:api',
-		// 'throttle:60,1'
-	]
-], function() {
-	Route::get('/user', 'AuthController@user');
-	Route::post('/logout', 'AuthController@logout');
-});
-
-Route::group([
-	'prefix' => 'v1',
-	'middleware' => [
-		// 'throttle:60,1'
+		'throttle:60,1'
 	]
 ], function() {
 	Route::post('/signup', 'AuthController@signup');
 	Route::post('/login', 'AuthController@login');
 });
 
-//blocks
 Route::group([
-	'prefix' => 'v1/blocks',
+	'prefix' => 'v1',
 	'middleware' => [
 		'auth:api',
-		// 'throttle:60,1'
+		'throttle:60,1'
 	]
 ], function() {
-	Route::get('/{id?}', 'BlocksController@index');
-	Route::post('/', 'BlocksController@post');
-});
-
-//lots
-Route::group([
-	'prefix' => 'v1/lots',
-	'middleware' => [
-		'auth:api',
-		// 'throttle:60,1'
-	]
-], function() {
-	Route::get('/{id?}', 'LotsController@index');
-	Route::post('/', 'LotsController@postOverride');
-});
-
-//accounts
-Route::group([
-	'prefix' => 'v1/accounts',
-	'middleware' => [
-		'auth:api',
-		// 'throttle:60,1'
-	]
-], function() {
-	Route::get('/{id?}', 'AccountsController@index');
-	Route::post('/', 'AccountsController@postOverride');
+	Route::get('/user', 'AuthController@user');
+	Route::post('/logout', 'AuthController@logout');
+	
+	Route::prefix('blocks')->group(function(){
+		Route::get('/{id?}', 'BlocksController@index');
+		Route::post('/', 'BlocksController@post');
+	});
+	
+	Route::prefix('lots')->group(function(){
+		Route::get('/{id?}', 'LotsController@index');
+		Route::post('/', 'LotsController@postOverride');
+	});
+	
+	Route::prefix('accounts')->group(function(){
+		Route::get('/{id?}', 'AccountsController@index');
+		Route::post('/', 'AccountsController@postOverride');
+	});
+	
+	Route::prefix('internet-plans')->group(function(){
+		Route::get('/{id?}', 'InternetPlansController@index');
+		Route::post('/', 'InternetPlansController@post');
+	});
+	
+	Route::prefix('water-rates')->group(function(){
+		Route::get('/{id?}', 'WaterRatesController@index');
+		Route::post('/', 'WaterRatesController@postOverride');
+	});
+	
+	Route::prefix('fees')->group(function(){
+		Route::get('/{id?}', 'FeesController@index');
+		Route::post('/', 'FeesController@post');
+	});
 });
