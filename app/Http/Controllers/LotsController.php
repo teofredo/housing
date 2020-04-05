@@ -17,4 +17,11 @@ class LotsController extends Controller
     {
     	return parent::index($id, $request);
     }
+    
+    public function postOverride(
+    	Request $request,
+    	LotValidator $validator)
+    {
+        return $this->setVConstraints([ 'block_id' => $request->block_id ?? null ])->post($request);
+    }
 }

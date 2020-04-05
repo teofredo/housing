@@ -1,29 +1,36 @@
 <?php
 namespace App\Transformers;
 
+use App\Models\Account;
+
 class AccountTransformer extends AbstractTransformer
 {
-	protected $model = \App\Models\Account::class;
+	protected $model = Account::class;
+	
+	protected $availableIncludes = ['householder'];
 	
 	public function transform($model)
 	{
-		if(!$model instanceof $this->model) {
+		if(!$model instanceof Account) {
 			return [];
 		}
 		
 		return [
-			'account_id' => $model->account_id,
+			'account_id' => (int) $model->account_id,
 			'account_no' => $model->account_no,
 			'parent_id' => $model->parent_id,
-			'lastname' => $model->lastname,
-			'firstname' => $model->firstname,
-			'middlename' => $model->middlename,
-			'suffix' => $model->suffix,
+			'account_name' => $model->account_name,
 			'email' => $model->email,
 			'username' => $model->username,
 			'activated_at' => $model->activated_at,
 			'active' => $model->active,
 			'created_at' => $model->created_at
 		];
+	}
+	
+	public function includeHouseholder(Account $model)
+	{
+		$householder = $model->householder;
+		return $this->item($householder, new HouseholderTransformer);
 	}
 }

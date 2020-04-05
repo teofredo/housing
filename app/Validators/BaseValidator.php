@@ -8,12 +8,20 @@ abstract class BaseValidator
 {
 	protected $validator;
 	
-	private $data;
+	protected $constraints = [];
 	
 	public function validate(array $data=[], array $rules=[], array $messages=[])
 	{
+		if($this->constraints) {
+			$this->overrideRules();
+		}
+		
+		// vd($this->constraints);
+		
 		$rules = $rules ?: $this->rules;
 		$messages = $messages ?: $this->messages;
+		
+		// vd($rules);
 		
 		$this->validator = Validator::make($data, $rules, $messages);
 		
@@ -22,5 +30,11 @@ abstract class BaseValidator
 		}
 		
 		return true;
+	}
+	
+	public function setConstraints(array $constraints=[])
+	{
+		$this->constraints = $constraints;
+		return $this;
 	}
 }

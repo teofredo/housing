@@ -49,8 +49,6 @@ class CreateHouseholdersTable extends Migration
                 
             $table->timestamps();
             $table->softDeletes();
-            
-            $table->unique(['block_id', 'lot_id', 'deleted_at']);
         });
     }
 

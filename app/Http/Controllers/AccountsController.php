@@ -11,6 +11,7 @@ use App\Services\{
     ErrorResponse
 };
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
 
 class AccountsController extends Controller
 {
@@ -31,12 +32,17 @@ class AccountsController extends Controller
     	try {
     		$data = $request->all();
     	
-    		$validator->validate($data);
+    		$validator
+                ->setConstraints([ 'block_id' => $data['block_id'] ?? null ])
+                ->validate($data);
     		
     		DB::beginTransaction();
     		
     		$resource = $accountService->createAccount($data);
-    		$resource = $this->fractal->item($resource, $this->transformer)->get();
+            $resource = $this->fractal
+                ->item($resource, $this->transformer)
+                ->includes('householder')
+                ->get();
             
             DB::commit();
     		

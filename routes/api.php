@@ -44,7 +44,7 @@ Route::group([
 	]
 ], function() {
 	Route::get('/{id?}', 'LotsController@index');
-	Route::post('/', 'LotsController@post');
+	Route::post('/', 'LotsController@postOverride');
 });
 
 //accounts

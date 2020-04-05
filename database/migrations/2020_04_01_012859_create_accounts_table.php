@@ -47,7 +47,9 @@ class CreateAccountsTable extends Migration
                 ->default(null);
                 
             $table->integer('transferred_to')
-                ->comment('account_id');
+                ->comment('account_id')
+                ->nullable()
+                ->default(null);
             
             $table->timestamps();
             $table->softDeletes();

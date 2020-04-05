@@ -25,6 +25,8 @@ class Controller extends BaseController
     protected $authApiService;
     
     private $authUser;
+    
+    private $vConstraints = [];
 
     public function __construct(
     	FractalService $fractal)
@@ -95,7 +97,9 @@ class Controller extends BaseController
             $validator = $this->validator ?? null;
             if($validator) {
                 $this->validator = new $validator;
-                $this->validator->validate($data);
+                $this->validator
+                    ->setConstraints($this->vConstraints)
+                    ->validate($data);
             } 
             
             $resource = $this->model->create($data);
@@ -144,5 +148,14 @@ class Controller extends BaseController
     protected function getAuthUser()
     {
         return $this->authUser;
+    }
+    
+    /**
+    * set validator constraints
+    */
+    protected function setVConstraints(array $constraints=[])
+    {
+        $this->vConstraints = $constraints;
+        return $this;
     }
 }

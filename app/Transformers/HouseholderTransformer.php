@@ -1,7 +1,9 @@
 <?php
 namespace App\Transformers;
 
+use App\Models\Householder;
+
 class HouseholderTransformer extends AbstractTransformer
 {
-	protected $model = \App\Models\Resident::class;
+	protected $model = Householder::class;
 }

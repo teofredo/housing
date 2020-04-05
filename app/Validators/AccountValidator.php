@@ -8,7 +8,7 @@ class AccountValidator extends BaseValidator
 		'password' => 'required|string',
 		
 		//householder rules
-		'householder_type' => 'required|in:owner,tenant',
+		'householder_type' => 'required|string|in:owner,tenant',
 		'lastname' => 'required|string',
 		'firstname' => 'required|string',
 		'middlename' => 'sometimes|string',
@@ -38,8 +38,9 @@ class AccountValidator extends BaseValidator
 		'lot_id.integer' => 'lot_id must be integer'
 	];
 	
-	public static $custom = [
-		'rules' => [],
-		'messages' => []
-	];
+	protected function overrideRules()
+	{
+		$this->rules['lot_id'] = "required|integer|unique:App\Models\Householder,lot_id,NULL,id,block_id,{$this->constraints['block_id']},deleted_at,NULL";
+		$this->messages['lot_id.unique'] = 'the unit has already been taken';
+	}
 }
