@@ -22,7 +22,6 @@ class CreateInternetPlansTable extends Migration
                 ->nullable()
                 ->default(null);
                 
-            $table->enum('active', [0, 1]);
             $table->timestamps();
             $table->softDeletes();
         });

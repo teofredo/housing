@@ -17,9 +17,7 @@ class CreateFeesTable extends Migration
             $table->increments('fee_id');
             $table->string('name');
             $table->decimal('fee', 10, 2);
-            $table->enum('other_fee', [0, 1])
-                ->default(0);
-                
+            $table->tinyInteger('other_fee')->default(0);
             $table->mediumText('description')
                 ->nullable()
                 ->default(null);

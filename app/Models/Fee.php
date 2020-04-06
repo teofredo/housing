@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Fee extends Model
+class Fee extends Base
 {
     protected $primaryKey = 'fee_id';
 }

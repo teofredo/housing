@@ -20,6 +20,10 @@ class CreateHouseholdersTable extends Migration
                 ->nullable()
                 ->default(null);
                 
+            $table->string('water_meter_no', 30)
+                ->nullable()
+                ->default(null);
+                
             $table->enum('type', ['owner', 'tenant']);
                 
             $table->integer('block_id')
