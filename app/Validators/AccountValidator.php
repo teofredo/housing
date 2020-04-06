@@ -16,8 +16,9 @@ class AccountValidator extends BaseValidator
 		'contact_no' => 'required|string',
 		'block_id' => 'required|integer',
 		'lot_id' => 'required|integer',
-		'house_no' => 'sometimes|string',
-		'moved_in' => 'sometimes|string'
+		'moved_in' => 'sometimes|string',
+		'house_no' => 'sometimes|string|max:30',
+		'water_meter_no' => 'sometimes|string|max:30'
 	];
 	
 	protected $messages = [

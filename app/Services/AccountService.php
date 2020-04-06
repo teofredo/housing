@@ -10,6 +10,8 @@ use Illuminate\Support\Arr;
 
 class AccountService extends AbstractService
 {
+	protected static $class = __CLASS__;
+	
 	public function model()
 	{
 		return Account::class;
@@ -52,6 +54,7 @@ class AccountService extends AbstractService
 		$data = array_merge(Arr::only($data, ['block_id', 'lot_id']), [
 			'account_id' => $account->account_id,
 			'house_no' => $data['house_no'] ?? null,
+			'water_meter_no' => $data['water_meter_no'] ?? null,
 			'type' => $data['householder_type'],
 			'contact_no' => json_encode($data['contact_no']),
 			'name' => json_encode([
@@ -65,6 +68,10 @@ class AccountService extends AbstractService
 		
 		//create householder
 		$householder = Householder::create($data);
+		
+		//build house_no and water_meter_no
+		
+		
 		if(!$householder) {
 			throw new \Exception('failed to add householder info');
 		}

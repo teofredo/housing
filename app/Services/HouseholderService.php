@@ -9,6 +9,8 @@ use Carbon\Carbon;
 
 class HouseholderService extends AbstractService
 {
+	protected static $class = __CLASS__;
+	
 	public function model()
 	{
 		return Householder::class;

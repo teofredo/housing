@@ -49,4 +49,14 @@ Route::group([
 		Route::get('/{id?}', 'FeesController@index');
 		Route::post('/', 'FeesController@post');
 	});
+	
+	Route::prefix('internet-subscriptions')->group(function(){
+		Route::get('/{id?}', 'InternetSubscriptionsController@index');
+		Route::post('/', 'InternetSubscriptionsController@postOverride');
+	});
+	
+	Route::prefix('water-readings')->group(function(){
+		Route::get('/{id?}', 'WaterReadingsController@index');
+		Route::post('/', 'WaterReadingsController@postOverride');
+	});
 });
