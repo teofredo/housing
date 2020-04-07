@@ -10,7 +10,6 @@ use App\Services\{
 	WaterReadingService,
 	ErrorResponse
 };
-use Illuminate\Support\Facades\DB;
 
 class WaterReadingsController extends Controller
 {
@@ -33,15 +32,12 @@ class WaterReadingsController extends Controller
     		
     		$validator->validate($data);
     		
-    		DB::beginTransaction();
-    		
-    		$readingService->addWaterReading($data);
-    		
-    		DB::commit();
+    		$resource = $readingService->addWaterReading($data);
+            $resource = $this->fractal->item($resource, $this->transformer)->get();
+
+            return response($resource);
     		
     	} catch(\Exception $e) {}
-    	
-    	DB::rollBack();
     	
     	$errorResponse = new ErrorResponse($e);
     	

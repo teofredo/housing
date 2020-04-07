@@ -17,14 +17,19 @@ class CreateWaterReadingsTable extends Migration
             $table->bigIncrements('id');
             $table->integer('account_id');
             $table->string('meter_no', 30);
-            $table->float('prev_read');
+            $table->float('prev_read')->default(0);
             $table->float('curr_read');
-            $table->dateTime('prev_read_date');
+            $table->dateTime('prev_read_date')
+                ->nullable()
+                ->default(null);
+
             $table->dateTime('curr_read_date');
             $table->date('due_date');
             $table->integer('reader_id');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['account_id', 'due_date']);
         });
     }
 

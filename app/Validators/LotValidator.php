@@ -11,7 +11,7 @@ class LotValidator extends BaseValidator
 	protected $messages = [
 		'block_id.required' => 'block_id is required',
 		'name.required' => 'lot name is required',
-		'name.unique' = 'lot name has already been taken'
+		'name.unique' => 'lot name has already been taken'
 	];
 	
 	protected function overrideRules()

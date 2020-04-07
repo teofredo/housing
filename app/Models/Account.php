@@ -10,4 +10,9 @@ class Account extends Base
     {
     	return $this->hasOne(__NAMESPACE__ . '\\Householder', 'account_id');
     }
+
+    public function setAccountNameAttribute($value)
+    {
+    	$this->attributes['account_name'] = strtoupper($value);
+    }
 }

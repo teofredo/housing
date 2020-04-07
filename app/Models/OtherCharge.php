@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class OtherCharge extends Model
+class OtherCharge extends Base
 {
-    //
+    public function account()
+    {
+    	return $this->belongsTo(__NAMESPACE__ . '\\Account', 'account_id', 'account_id');
+    }
 }

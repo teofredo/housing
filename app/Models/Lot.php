@@ -15,4 +15,9 @@ class Lot extends Base
     {
     	return $this->hasOne(__NAMESPACE__ . '\\Resident', 'lot_id');
     }
+
+    public function setNameAttribute($value)
+    {
+    	$this->attributes['name'] = strtoupper($value);
+    }
 }

@@ -59,4 +59,19 @@ Route::group([
 		Route::get('/{id?}', 'WaterReadingsController@index');
 		Route::post('/', 'WaterReadingsController@postOverride');
 	});
+
+	Route::prefix('other-charges')->group(function(){
+		Route::get('/{id?}', 'OtherChargesController@index');
+		Route::post('/', 'OtherChargesController@post');
+	});
+
+	Route::prefix('adjustments')->group(function(){
+		Route::get('/{id?}', 'AdjustmentsController@index');
+		Route::post('/', 'AdjustmentsController@post');
+	});
+
+	Route::prefix('monthly-dues')->group(function(){
+		Route::get('/{id?}', 'MonthlyDuesController@index');
+		Route::post('/', 'MonthlyDuesController@postOverride');
+	});
 });

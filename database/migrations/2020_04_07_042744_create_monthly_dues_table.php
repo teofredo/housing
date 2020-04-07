@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOtherChargesTable extends Migration
+class CreateMonthlyDuesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,17 @@ class CreateOtherChargesTable extends Migration
      */
     public function up()
     {
-        Schema::create('other_charges', function (Blueprint $table) {
+        Schema::create('monthly_dues', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('code');
             $table->integer('account_id');
-            $table->integer('fee_id');
-            $table->string('description');
-            $table->decimal('amount');
             $table->date('due_date');
+            $table->decimal('amount_due');
+            $table->mediumText('data');
             $table->timestamps();
             $table->softDeletes();
-            
-            $table->unique(['account_id', 'fee_id', 'due_date']);
+
+            $table->unique(['code', 'account_id', 'due_date']);
         });
     }
 
@@ -34,6 +34,6 @@ class CreateOtherChargesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('other_charges');
+        Schema::dropIfExists('monthly_dues');
     }
 }

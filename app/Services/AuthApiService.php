@@ -8,13 +8,13 @@ class AuthApiService
 {
 	use CurlApi;
 	
-	private $oauthUrl;
+	private $authUrl;
 	
 	private $resourceUrl;
 	
 	public function __construct()
 	{
-		$this->oauthUrl = env('OAUTH_URL');
+		$this->authUrl = env('OAUTH_URL');
 		
 		$this->resourceUrl = env('RESOURCE_URL');
 		
@@ -34,7 +34,7 @@ class AuthApiService
 			throw new \Exception('invalid request data');
 		}
 		
-		return $this->httpPost("{$this->oauthUrl}/oauth/token", $reqData)->get();
+		return $this->httpPost("{$this->authUrl}/oauth/token", $reqData)->get();
 	}
 	
 	private function getReqDataByGrantType()
@@ -62,7 +62,7 @@ class AuthApiService
 	
 	public function getUserByAccessToken($accessToken)
 	{
-		$endpoint = env('OAUTH_URL') . '/api/v1/user';
+		$endpoint = "{$this->authUrl}/api/v1/user";
         $request = [];
         $headers = ["Authorization: Bearer {$accessToken}"];
         

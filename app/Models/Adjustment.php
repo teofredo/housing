@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-class WaterReading extends Base
+class Adjustment extends Base
 {
     public function account()
     {

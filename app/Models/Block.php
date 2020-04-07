@@ -15,4 +15,9 @@ class Block extends Base
     {
     	return $this->hasMany(__NAMESPACE__ . '\\Resident', 'block_id');
     }
+
+    public function setNameAttribute($value)
+    {
+    	$this->attributes['name'] = strtoupper($value);
+    }
 }
