@@ -3,7 +3,10 @@ namespace App\Services;
 
 use App\Models\WaterReading;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Support\{
+	Str,
+	Arr
+};
 use Carbon\Carbon;
 
 class WaterReadingService extends AbstractService
@@ -36,7 +39,11 @@ class WaterReadingService extends AbstractService
 		// current reading date
 		$data['curr_read_date'] = Carbon::now();
 
-		$reading = $this->add($data);
+		//$reading = $this->add($data);
+		$reading = $this->model->updateOrCreate(
+			[ 'account_id' => $data['account_id'], 'due_date' => $data['due_date']->format('Y-m-d') ],
+			Arr::except($data, ['account_id', 'due_date'])
+		);
 		if(!$reading) {
 			throw new \Exception('current reading not saved.');
 		}

@@ -10,7 +10,8 @@ class InternetSubscriptionValidator extends BaseValidator
 		'start_date' => 'required|date_format:Y-m-d',
 		'end_date' => 'required|date_format:Y-m-d',
 		'cancel_reason' => 'required_with:cancelled_at|string',
-		'active' => 'sometimes|integer'
+		'active' => 'sometimes|integer',
+		'installed_at' => 'sometimes|date'
 	];
 	
 	protected $messages = [

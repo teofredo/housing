@@ -30,8 +30,13 @@ class CreateInternetSubscriptionsTable extends Migration
                 ->default(null);
                 
             $table->tinyInteger('active')->default(1);
+            $table->dateTime('installed_at')
+                ->nullable()
+                ->default(null);
+                
             $table->timestamps();
-            $table->softDeletes();
+
+            $table->unique(['account_id', 'active']);
         });
     }
 

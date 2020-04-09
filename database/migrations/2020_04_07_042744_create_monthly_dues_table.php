@@ -21,8 +21,6 @@ class CreateMonthlyDuesTable extends Migration
             $table->decimal('amount_due');
             $table->mediumText('data');
             $table->timestamps();
-            $table->softDeletes();
-
             $table->unique(['code', 'account_id', 'due_date']);
         });
     }

@@ -5,7 +5,7 @@ class WaterRateValidator extends BaseValidator
 {
 	protected $rules = [
 		'min_fee' => 'sometimes|numeric|min:0',
-		'min_m3' => 'required|numeric|lte:max_m3',
+		'min_m3' => 'required|numeric|min:0|lte:max_m3',
 		'max_m3' => 'required|numeric|gte:min_m3',
 		'per_m3' => 'required|numeric|min:0'
 	];

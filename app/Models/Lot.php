@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Lot extends Base
 {
+    use SoftDeletes;
+
     protected $primaryKey = 'lot_id';
     
     public function block()

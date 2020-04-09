@@ -10,6 +10,7 @@ use App\Services\{
 	MonthlyDueService,
 	ErrorResponse
 };
+use Illuminate\Support\Facades\DB;
 
 class MonthlyDuesController extends Controller
 {
@@ -35,11 +36,17 @@ class MonthlyDuesController extends Controller
 
     		$validator->validate($data);
 
+    		DB::beginTransaction();
+
     		$monthDueService->generateMonthDue($data['due_date'] ?? null);
+
+    		DB::commit();
 
     		return;
 
     	} catch(\Exception $e) {}
+
+    	DB::rollBack();
 
     	$errorResponse = new ErrorResponse($e);
 

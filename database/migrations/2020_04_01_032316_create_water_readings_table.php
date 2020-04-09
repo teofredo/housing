@@ -27,8 +27,7 @@ class CreateWaterReadingsTable extends Migration
             $table->date('due_date');
             $table->integer('reader_id');
             $table->timestamps();
-            $table->softDeletes();
-
+            
             $table->unique(['account_id', 'due_date']);
         });
     }

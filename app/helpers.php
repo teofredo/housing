@@ -11,7 +11,7 @@ function pr(array $data)
 	die;
 }
 
-function vd($data)
+function vd(...$data)
 {
 	var_dump($data);
 	die;
@@ -24,11 +24,19 @@ function getNextPaymentDueDate()
 		throw new \Exception('payment-due must be defined in config');
 	}
 
-	if(Str::containsAll($dueDate->value, ['[', ']', '30'])) {
-		return Carbon::now()->endOfMonth();
-	} 
+	switch($dueDate->value) {
+		case 'START_OF_MONTH':
+			return Carbon::now()->startOfMonth();
+			
+		case 'END_OF_MONTH':
+			return Carbon::now()->endOfMonth();
 
-	return Carbon::now()->day($dueDate->value);
+		case 'HALF_OF_MONTH':
+			return Carbon::now()->day(15);
+
+		default:
+			return Carbon::now()->day($dueDate->value);			
+	}
 }
 
 function dbConfig($key=null)

@@ -18,7 +18,7 @@ class ConfigSeeder extends Seeder
         DB::table('config')->insert([
         	[
         		'key' => 'payment-due', 
-        		'value' => json_encode([28,29,30,31]),
+        		'value' => 'END-OF-MONTH',
         		'comment' => 'last day of the month'
         	],
 
@@ -42,7 +42,14 @@ class ConfigSeeder extends Seeder
 
             [
                 'key' => 'generator-lock',
-                'value' => 0
+                'value' => 0,
+                'comment' => 'must be enabled to generate month dues and disable CRUD'
+            ],
+
+            [
+                'key' => 'pro-rated',
+                'value' => 15,
+                'comment' => 'collect pro rated on due date if it exceeds 15 days'
             ]
         ]);
     }

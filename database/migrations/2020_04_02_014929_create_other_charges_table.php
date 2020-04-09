@@ -22,8 +22,6 @@ class CreateOtherChargesTable extends Migration
             $table->date('due_date');
             $table->timestamps();
             $table->softDeletes();
-            
-            $table->unique(['account_id', 'fee_id', 'due_date']);
         });
     }
 

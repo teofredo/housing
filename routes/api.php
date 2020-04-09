@@ -62,7 +62,7 @@ Route::group([
 
 	Route::prefix('other-charges')->group(function(){
 		Route::get('/{id?}', 'OtherChargesController@index');
-		Route::post('/', 'OtherChargesController@post');
+		Route::post('/', 'OtherChargesController@postOverride');
 	});
 
 	Route::prefix('adjustments')->group(function(){
