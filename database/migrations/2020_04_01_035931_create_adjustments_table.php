@@ -18,7 +18,7 @@ class CreateAdjustmentsTable extends Migration
             $table->integer('account_id');
             $table->string('description');
             $table->decimal('amount');
-            $table->date('effective_date');
+            $table->date('due_date');
             $table->timestamps();
             $table->softDeletes();
         });

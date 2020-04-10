@@ -16,8 +16,9 @@ class AccountValidator extends BaseValidator
 		'contact_no' => 'required|string',
 		'block_id' => 'required|integer',
 		'lot_id' => 'required|integer',
-		'house_no' => 'sometimes|string',
-		'moved_in' => 'sometimes|string'
+		'moved_in' => 'required|date_format:Y-m-d',
+		'house_no' => 'sometimes|string|max:20',
+		'water_meter_no' => 'sometimes|string|max:20'
 	];
 	
 	protected $messages = [
@@ -35,12 +36,12 @@ class AccountValidator extends BaseValidator
 		'block_id.required' => 'block_id is required',
 		'block_id.integer' => 'block_id must be integer',
 		'lot_id.required' => 'lot_id is required',
-		'lot_id.integer' => 'lot_id must be integer'
+		'lot_id.integer' => 'lot_id must be integer',
+		'lot_id.unique' => 'the unit has already been taken'
 	];
 	
 	protected function overrideRules()
 	{
 		$this->rules['lot_id'] = "required|integer|unique:App\Models\Householder,lot_id,NULL,id,block_id,{$this->constraints['block_id']},deleted_at,NULL";
-		$this->messages['lot_id.unique'] = 'the unit has already been taken';
 	}
 }

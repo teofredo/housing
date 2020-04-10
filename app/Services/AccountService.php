@@ -10,6 +10,8 @@ use Illuminate\Support\Arr;
 
 class AccountService extends AbstractService
 {
+	protected static $class = __CLASS__;
+	
 	public function model()
 	{
 		return Account::class;
@@ -27,7 +29,7 @@ class AccountService extends AbstractService
 		$middlename = $data['middlename'] ?? null;
 		$mi = $middlename[0];
 		$suffix = $data['suffix'] ?? null;
-		$data['account_name'] = strtoupper("{$data['firstname']} {$mi}. {$data['lastname']} {$suffix}");
+		$data['account_name'] = "{$data['firstname']} {$mi}. {$data['lastname']} {$suffix}";
 		
 		//others
 		$data['parent_id'] = $data['parent_id'] ?? null;
@@ -52,6 +54,7 @@ class AccountService extends AbstractService
 		$data = array_merge(Arr::only($data, ['block_id', 'lot_id']), [
 			'account_id' => $account->account_id,
 			'house_no' => $data['house_no'] ?? null,
+			'water_meter_no' => $data['water_meter_no'] ?? null,
 			'type' => $data['householder_type'],
 			'contact_no' => json_encode($data['contact_no']),
 			'name' => json_encode([
@@ -64,10 +67,16 @@ class AccountService extends AbstractService
 		]);
 		
 		//create householder
-		$householder = Householder::create($data);
+		$householder = Householder::create($data);		
 		if(!$householder) {
 			throw new \Exception('failed to add householder info');
 		}
+
+		//create householder house_no and water_meter_no
+		$houseNo = str_replace('-', '', "{$householder->lot->block->name}{$householder->lot->name}");
+		$householder->house_no = $houseNo;
+		$householder->water_meter_no = str_rot13($houseNo);
+		$householder->save();
 		
 		return $account;
 	}

@@ -28,8 +28,7 @@ class Controller extends BaseController
     
     private $vConstraints = [];
 
-    public function __construct(
-    	FractalService $fractal)
+    public function __construct(FractalService $fractal)
     {
     	$this->fractal = $fractal;
 
@@ -116,8 +115,8 @@ class Controller extends BaseController
     
     public function requestToken(
         $grantType='client_credentials', 
-        array $data=[])
-    {
+        array $data=[]
+    ) {
         try {
             $data = array_merge($data, [
                 'grant_type' => $grantType ?? 'password',

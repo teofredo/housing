@@ -1,10 +1,16 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class InternetPlan extends Model
+class InternetPlan extends Base
 {
+	use SoftDeletes;
+
     protected $primaryKey = 'plan_id';
+    
+    public function subscribers()
+    {
+    	//
+    }
 }

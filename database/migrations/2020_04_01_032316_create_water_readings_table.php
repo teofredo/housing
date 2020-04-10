@@ -16,17 +16,19 @@ class CreateWaterReadingsTable extends Migration
         Schema::create('water_readings', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('account_id');
-            $table->string('house_no');
-            $table->string('meter_no')
+            $table->string('meter_no', 30);
+            $table->float('prev_read')->default(0);
+            $table->float('curr_read');
+            $table->dateTime('prev_read_date')
                 ->nullable()
                 ->default(null);
-                
-            $table->float('consumption', 10, 2);
-            $table->date('effective_date');
-            $table->dateTime('date_read');
-            $table->string('reader_id');
+
+            $table->dateTime('curr_read_date');
+            $table->date('due_date');
+            $table->integer('reader_id');
             $table->timestamps();
-            $table->softDeletes();
+            
+            $table->unique(['account_id', 'due_date']);
         });
     }
 

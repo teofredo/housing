@@ -31,12 +31,10 @@ class ErrorResponse
 			'line' => $this->exception->getLine()
 		];
 		
-		//duplicate entry exception
-		if($this->exception instanceof \Illuminate\Database\QueryException
-			&& $this->format['code'] == 23000
-			&& Str::startsWith($this->format['message'], 'SQLSTATE[23000]')) {
-			$this->format['message'] = 'Duplicate entry';
-		}
+		// sql exception
+		// if($this->exception instanceof \Illuminate\Database\QueryException) {
+		// 	//
+		// }
 	}
 	
 	public function toJson()

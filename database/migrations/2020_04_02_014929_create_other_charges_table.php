@@ -16,10 +16,12 @@ class CreateOtherChargesTable extends Migration
         Schema::create('other_charges', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('account_id');
+            $table->integer('fee_id');
             $table->string('description');
             $table->decimal('amount');
-            $table->date('effective_date');
+            $table->date('due_date');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

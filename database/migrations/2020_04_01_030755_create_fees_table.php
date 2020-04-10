@@ -15,15 +15,18 @@ class CreateFeesTable extends Migration
     {
         Schema::create('fees', function (Blueprint $table) {
             $table->increments('fee_id');
+            $table->string('code')
+                ->nullable()
+                ->default(null);
+
             $table->string('name');
             $table->decimal('fee', 10, 2);
-            $table->enum('other_fee', [0, 1])
-                ->default(0);
-                
+            $table->tinyInteger('other_fee')->default(0);
             $table->mediumText('description')
                 ->nullable()
                 ->default(null);
-                
+
+            $table->tinyInteger('deleble')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

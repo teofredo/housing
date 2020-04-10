@@ -61,6 +61,28 @@ abstract class AbstractService
 
 	public function first(array $where=[], array $with=[])
 	{
-		return $this->model->where($where)->with($with)->first();
+		return $this->model
+			->where($where)
+			->with($with)
+			->first();
+	}
+	
+	public function findBy($field, $value)
+	{
+		return $this->model->where($field, $value)->get();
+	}
+	
+	public function findFirst($field, $value)
+	{
+		return $this->model->where($field, $value)->first();
+	}
+	
+	public function latest(array $where=[], array $with=[])
+	{
+		return $this->model
+			->where($where)
+			->with($with)
+			->latest()
+			->first();
 	}
 }

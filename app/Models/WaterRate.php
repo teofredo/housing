@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class WaterRate extends Model
+class WaterRate extends Base
 {
-    //
+    use SoftDeletes;
 }

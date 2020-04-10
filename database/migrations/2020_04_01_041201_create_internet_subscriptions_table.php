@@ -17,8 +17,26 @@ class CreateInternetSubscriptionsTable extends Migration
             $table->bigIncrements('subscription_id');
             $table->integer('account_id');
             $table->integer('plan_id');
+            $table->tinyInteger('installed')->default(0);
+            $table->dateTime('start_date');
+            $table->dateTime('end_date');
+                
+            $table->dateTime('cancelled_at')
+                ->nullable()
+                ->default(null);
+                
+            $table->string('cancel_reason')
+                ->nullable()
+                ->default(null);
+                
+            $table->tinyInteger('active')->default(1);
+            $table->dateTime('installed_at')
+                ->nullable()
+                ->default(null);
+                
             $table->timestamps();
-            $table->softDeletes();
+
+            $table->unique(['account_id', 'active']);
         });
     }
 
