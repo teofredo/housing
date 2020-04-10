@@ -25,8 +25,8 @@ class WaterReadingsController extends Controller
     public function postOverride(
     	Request $request,
     	WaterReadingService $readingService,
-    	WaterReadingValidator $validator)
-    {
+    	WaterReadingValidator $validator
+    ) {
     	try {
     		$data = $request->all();
     		

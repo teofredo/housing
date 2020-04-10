@@ -27,8 +27,8 @@ class AccountsController extends Controller
     public function postOverride(
     	Request $request,
     	AccountValidator $validator,
-    	AccountService $accountService)
-    {
+    	AccountService $accountService
+    ) {
     	try {
     		$data = $request->all();
     	

@@ -26,8 +26,8 @@ class InternetSubscriptionsController extends Controller
     public function postOverride(
     	Request $request,
     	InternetSubscriptionService $subscriptionService,
-    	InternetSubscriptionValidator $validator)
-    {
+    	InternetSubscriptionValidator $validator
+    ) {
     	try {
     		$data = $request->all();
     		

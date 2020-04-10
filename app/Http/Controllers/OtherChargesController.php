@@ -26,8 +26,8 @@ class OtherChargesController extends Controller
     public function postOverride(
     	Request $request,
     	OtherChargeValidator $validator,
-    	OtherChargeService $service)
-    {
+    	OtherChargeService $service
+    ) {
     	try { 
     		$data = $request->all();
 

@@ -3,33 +3,30 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\MonthlyDue;
-use App\Transformers\MonthlyDueTransformer;
-use App\Validators\MonthlyDueValidator;
+use App\Models\Payment;
+use App\Transformers\PaymentTransformer;
+use App\Validators\PaymentValidator;
 use App\Services\{
-	MonthlyDueService,
-	ErrorResponse
+	ErrorResponse,
+	PaymentService
 };
 use Illuminate\Support\Facades\DB;
 
-class MonthlyDuesController extends Controller
+class PaymentsController extends Controller
 {
-    protected $model = MonthlyDue::class;
-    protected $transformer = MonthlyDueTransformer::class;
-    protected $validator = MonthlyDueValidator::class;
+    protected $model = Payment::class;
+    protected $transformer = PaymentTransformer::class;
+    protected $validator = PaymentValidator::class;
 
     public function index($id=null, Request $request)
     {
     	return parent::index($id, $request);
     }
 
-    /**
-    * monthly dues generator
-    */
     public function postOverride(
     	Request $request,
-    	MonthlyDueValidator $validator,
-    	MonthlyDueService $monthDueService
+    	PaymentService $paymentService,
+    	PaymentValidator $validator
     ) {
     	try {
     		$data = $request->all();
@@ -38,11 +35,12 @@ class MonthlyDuesController extends Controller
 
     		DB::beginTransaction();
 
-    		$monthDueService->generateMonthDue($data['due_date'] ?? null);
+    		$resource = $paymentService->addPayment($data);
+    		$resource = $this->fractal->item($resource, $this->transformer)->get();
 
     		DB::commit();
 
-    		return;
+    		return response($resource);
 
     	} catch(\Exception $e) {}
 

@@ -74,4 +74,9 @@ Route::group([
 		Route::get('/{id?}', 'MonthlyDuesController@index');
 		Route::post('/', 'MonthlyDuesController@postOverride');
 	});
+
+	Route::prefix('payments')->group(function(){
+		Route::get('/{id?}', 'PaymentsController@index');
+		Route::post('/', 'PaymentsController@postOverride');
+	});
 });

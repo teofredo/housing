@@ -20,8 +20,8 @@ class WaterRatesController extends Controller
     
     public function postOverride(
     	Request $request,
-    	WaterRateValidator $validator)
-    {
+    	WaterRateValidator $validator
+    ) {
     	return $this->setVConstraints(['min_m3' => $request->min_m3 ?? null])->post($request);
     }
 }

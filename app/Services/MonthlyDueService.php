@@ -38,11 +38,68 @@ class MonthlyDueService extends AbstractService
 		}
 	}
 
+	public function generatePenalties()
+	{
+		
+	}
+
+	public function generatePrevBalance($code, Carbon $dueDate)
+	{
+		PaymentService::ins()
+			->getModel()
+			->where('due_date', $dueDate->copy()->subMonthNoOverflow())
+			->where('current_balance', '>', 0)
+			->get()
+			->each(function($model) use($code, $dueDate){
+				$this->model->updateOrCreate(
+					['code' => $code, 'account_id' => $model->account_id, 'due_date' => $dueDate],
+					['amount_due' => $model->current_balance, 'data' => $model->toJson()]
+				);
+			});
+	}
+
 	public function generateOtherCharges($code, Carbon $dueDate)
 	{
-		AccountService::ins()
+		/**
+		* delete non other fees, mandatory fees
+		*/
+		OtherChargeService::ins()
 			->getModel()
-			->where('status', 'active')
+			->where('due_date', $dueDate)
+			->with(['fee' => function($q){
+				$q->where('other_fee', 0);
+			}])
+			->get()
+			->each(function($q){
+				if($q->fee) {
+					$q->delete();
+				}
+			});
+
+		$accounts = AccountService::ins()->findBy('status', 'active');
+		$fees = FeeService::ins()->findBy('other_fee', 0);
+
+		/**
+		* Add fees to account, insert to other_charges
+		*/
+		$accounts
+			->get()
+			->each(function($model) use($fees, $dueDate){
+				$fees->each(function($fee) use($model, $dueDate){
+					OtherChargeService::ins()->add([
+						'account_id' => $model->account_id,
+						'fee_id' => $fee->fee_id,
+						'description' => $fee->name,
+						'amount' => $fee->fee,
+						'due_date' => $dueDate
+					]);
+				});
+			});
+
+		/**
+		* add to month due
+		*/
+		$accounts
 			->with(['otherCharges' => function($q) use($dueDate){
 				$q->where('due_date', $dueDate);
 			}])
