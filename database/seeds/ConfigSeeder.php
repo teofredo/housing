@@ -25,7 +25,7 @@ class ConfigSeeder extends Seeder
         	[
         		'key' => 'cut-off',
         		'value' => 25,
-        		'comment' => 'day of the month'
+        		'comment' => 'day of the month, internet cut-off'
         	],
 
         	[
@@ -50,6 +50,18 @@ class ConfigSeeder extends Seeder
                 'key' => 'pro-rated',
                 'value' => 15,
                 'comment' => 'collect pro rated on due date if it exceeds 15 days'
+            ],
+
+            [
+                'key' => 'penalty-non-payment',
+                'value' => 3,
+                'comment' => '(percentage)penalty for non payment'
+            ],
+
+            [
+                'key' => 'penalty-late',
+                'value' => 3,
+                'comment' => '(percentage)penalty for late'
             ]
         ]);
     }

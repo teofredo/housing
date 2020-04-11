@@ -38,9 +38,58 @@ class MonthlyDueService extends AbstractService
 		}
 	}
 
-	public function generatePenalties()
+	public function generatePenaltyNonPayment($code, Carbon $dueDate)
 	{
-		
+		AccountService::ins()
+            ->findBy('status', 'active')
+            ->each(function($model) use($dueDate){
+                /**
+                * get last payment history
+                */
+                $payment = PaymentService::ins()
+                    ->getModel()
+                    ->where('account_id', $model->account_id)
+                    ->orderBy('due_date', 'desc')
+                    ->first();
+
+                if(!$payment) {
+                	return true; // continue
+                }
+
+                /**
+                * add penalty for non payment
+                */
+                if(!$payment->paid_at) { 
+
+                	// get total amount due for the month
+	                $monthDues = MonthlyDueService::ins()
+	                	->where([
+	                		'account_id' => $model->account_id,
+	                		'due_date' => $dueDate
+	                	])
+	                	->whereNotIn('code', ['adjustments']);
+
+	                //add penalty to original amount
+	                $amountDue = $monhthDues->sum('amount_due');
+	                $percent = (double) dbConfig('penalty')->value;
+	                $penalty = $amountDue * ($penalty/100);
+	                $adWithPenalty = $amountDue + $penalty;
+
+	                $data = [
+	                	'last_payment' => $payment->toJson(),
+	                	'month_dues' => $monthDues->get()->toJson(),
+	                	'amount_due' => $amountDue,
+	                	'penalty' => $penalty,
+	                	'ad_with_penalty' => $adWithPenalty
+	                ];
+
+	            	$this->model->updateOrCreate(
+						['code' => $code, 'account_id' => $model->account_id, 'due_date' => $dueDate],
+						['amount_due' => $penalty, 'data' => json_encode($data)]
+					);
+	            }
+
+            });
 	}
 
 	public function generatePrevBalance($code, Carbon $dueDate)
@@ -66,15 +115,11 @@ class MonthlyDueService extends AbstractService
 		OtherChargeService::ins()
 			->getModel()
 			->where('due_date', $dueDate)
-			->with(['fee' => function($q){
-				$q->where('other_fee', 0);
-			}])
-			->get()
-			->each(function($q){
-				if($q->fee) {
-					$q->delete();
-				}
-			});
+			->join('fees', function($join){
+				$join->on('other_charges.fee_id', '=', 'fees.fee_id')
+					->where('fees.other_fee', 0);
+			})
+			->delete();
 
 		$accounts = AccountService::ins()->findBy('status', 'active');
 		$fees = FeeService::ins()->findBy('other_fee', 0);

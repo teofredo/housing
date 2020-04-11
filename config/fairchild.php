@@ -8,8 +8,11 @@ return [
 		'internet-fee', 
 		'other-charges',
 		'prev-balance',
-		'penalty',
+		'penalty-non-payment',
 		'adjustments',
+
+		// not applicable, only be added during actual payment
+		'penalty-late'
 	],
 
 	'payment-dues' => [

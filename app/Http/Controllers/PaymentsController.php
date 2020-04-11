@@ -50,4 +50,28 @@ class PaymentsController extends Controller
 
     	return $errorResponse->toJson();
     }
+
+    public function initPayments(
+        Request $request,
+        PaymentService $paymentService
+    ) {
+        try {
+            $dueDate = $request->due_date ?? getNextPaymentDueDate();
+
+            DB::beginTransaction();
+
+            $paymentService->initPayments($dueDate);
+
+            DB::commit();
+
+            return response()->json(['status' => 'done']);
+
+        } catch(\Exception $e) {}
+
+        DB::rollBack();
+
+        $errorResponse = new ErrorResponse($e);
+
+        return $errorResponse->toJson();
+    }
 }

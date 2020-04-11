@@ -16,7 +16,10 @@ class CreatePaymentsTable extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->bigIncrements('payment_id');
             $table->integer('account_id');
-            $table->string('reference_no');
+            $table->string('reference_no')
+                ->nullable()
+                ->default(null);
+                
             $table->decimal('amount_due')->default(0);
             $table->decimal('prev_balance')->default(0);
             $table->decimal('amount_received')->default(0);
