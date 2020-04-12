@@ -1,8 +1,13 @@
 <?php
 
+/**
+* most of it are not used
+* important notes only
+*/
+
 return [
 
-	//DO NOT TOUCH!, ordered intentionally
+	//order o generate month dues
 	'month-due-codes' => [
 		'water-bill', 
 		'internet-fee', 
@@ -19,6 +24,10 @@ return [
 		'START_OF_MONTH',
 		'END_OF_MONTH',
 		'HALF_OF_MONTH'
-	]
+	],
 	
+
+	'queue_names' => [
+		'commands' // for artisan console
+	]
 ];	

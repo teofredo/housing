@@ -28,28 +28,46 @@ class MonthlyDuesController extends Controller
     	return parent::index($id, $request);
     }
 
-    /**
-    * TODO: use queue workers
-    */
     public function postOverride(Request $request)
     {
+    	$command = 'generate:month-dues';
+    	$processName = 'generate-month-dues';
+
     	try {
     		$request->validate([
     			'due_date' => 'required|date_format:Y-m-d'
     		]);
 
-    		/**
-    		* using artisan console to generate month dues for all accounts
-    		* to handle big process
-    		*/
-    		$exitCode = Artisan::call('generate:month-dues', [
-    			'due_date' => $request->due_date
-    		]);
+    		$dueDate = Carbon::parse($request->due_date);
 
+    		/**
+    		* check if already processing or done 
+    		*/
     		$process = ProcessService::ins()->first([
-    			'name' => 'generate-month-dues',
-    			'due_date' => Carbon::parse($request->due_date)
-    		]);
+                'name' => $processName,
+                'due_date' => $dueDate
+            ]);
+
+            if($process && in_array($process->status, ['processing', 'done'])) {
+                return response()->json(['status' => $process->status]);
+            }
+
+            /**
+            * create/ update process with status=pending
+            */
+    		$process = ProcessService::ins()
+                ->getModel()
+                ->updateOrCreate(
+                    ['name' => $processName, 'due_date' => $dueDate],
+                    ['status' => 'pending']
+                );
+
+            /**
+            * queue generator command
+            */
+    		Artisan::queue($command, [ 'process_id' => $process->process_id ])
+				->onConnection(env('QUEUE_CONNECTION'))
+				->onQueue('commands');
 
     		return response()->json($process);
 

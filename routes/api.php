@@ -72,13 +72,17 @@ Route::group([
 
 	Route::prefix('monthly-dues')->group(function(){
 		Route::get('/{id?}', 'MonthlyDuesController@index');
+
+		//using commands
 		Route::post('/', 'MonthlyDuesController@postOverride');
 	});
 
 	Route::prefix('payments')->group(function(){
 		Route::get('/{id?}', 'PaymentsController@index');
-
-		// artisan console - month dues generator
 		Route::post('/', 'PaymentsController@postOverride');
+	});
+
+	Route::prefix('process')->group(function(){
+		Route::get('/{id?}', 'ProcessController@index');
 	});
 });

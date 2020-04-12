@@ -9,8 +9,8 @@ use App\Services\{
     ErrorResponse,
     ProcessService
 };
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class GenerateMonthDues extends Command
 {
@@ -19,7 +19,7 @@ class GenerateMonthDues extends Command
      *
      * @var string
      */
-    protected $signature = 'generate:month-dues {due_date}';
+    protected $signature = 'generate:month-dues {process_id}';
 
     /**
      * The console command description.
@@ -48,29 +48,25 @@ class GenerateMonthDues extends Command
         PaymentService $paymentService
     ) {
         try {
-            $dueDate = Carbon::parse($this->argument('due_date'));
-            if(!$dueDate->isValid()) {
-                throw new \Exception('invalid due_date');
+            $processId = $this->argument('process_id');
+            $process = ProcessService::ins()->find($processId);
+            if(!$process) {
+                throw new \Exception('process not found');
             }
 
-            $process = ProcessService::ins()->first([
-                'name' => 'generate-monthly-dues',
-                'due_date' => $dueDate
-            ]);
+            if($process->name != 'generate-month-dues') {
+                throw new \Exception('invalid process');   
+            }
 
-            if($process && in_array($process->status, ['processing', 'done'])) {
+            if(in_array($process->status, ['processing', 'done'])) {
                 $this->info("{$process->status}");
                 return;
             }
 
-            //processing
-            $process = ProcessService::ins()
-                ->getModel()
-                ->updateOrCreate(
-                    ['name' => 'generate-month-dues', 'due_date' => $dueDate],
-                    ['status' => 'processing']
-                );
+            $dueDate = Carbon::parse($process->due_date);
 
+            $process->status = 'processing';
+            $process->save();
             $this->info('processing');
 
             DB::beginTransaction();
@@ -92,7 +88,6 @@ class GenerateMonthDues extends Command
             //done
             $process->status = 'done';
             $process->save();
-
             $this->info('done');
 
             return;
@@ -102,13 +97,10 @@ class GenerateMonthDues extends Command
         DB::rollBack();
 
         //failed
-        ProcessService::ins()
-            ->getModel()
-            ->where([
-                'name' => 'generate-monthly-dues',
-                'due_date' => $dueDate
-            ])
-            ->update(['status' => 'failed']);
+        if($process) {
+            $process->status = 'failed';
+            $process->save();
+        }
 
         $this->info($e->getMessage());
     }
