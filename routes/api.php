@@ -77,6 +77,8 @@ Route::group([
 
 	Route::prefix('payments')->group(function(){
 		Route::get('/{id?}', 'PaymentsController@index');
+
+		// artisan console - month dues generator
 		Route::post('/', 'PaymentsController@postOverride');
 	});
 });

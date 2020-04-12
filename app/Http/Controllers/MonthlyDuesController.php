@@ -8,9 +8,14 @@ use App\Transformers\MonthlyDueTransformer;
 use App\Validators\MonthlyDueValidator;
 use App\Services\{
 	MonthlyDueService,
-	ErrorResponse
+	ErrorResponse,
+	ProcessService
 };
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\{
+	DB,
+	Artisan
+};
+use Carbon\Carbon;
 
 class MonthlyDuesController extends Controller
 {
@@ -24,29 +29,31 @@ class MonthlyDuesController extends Controller
     }
 
     /**
-    * monthly dues generator
+    * TODO: use queue workers
     */
-    public function postOverride(
-    	Request $request,
-    	MonthlyDueValidator $validator,
-    	MonthlyDueService $monthDueService
-    ) {
+    public function postOverride(Request $request)
+    {
     	try {
-    		$data = $request->all();
+    		$request->validate([
+    			'due_date' => 'required|date_format:Y-m-d'
+    		]);
 
-    		$validator->validate($data);
+    		/**
+    		* using artisan console to generate month dues for all accounts
+    		* to handle big process
+    		*/
+    		$exitCode = Artisan::call('generate:month-dues', [
+    			'due_date' => $request->due_date
+    		]);
 
-    		DB::beginTransaction();
+    		$process = ProcessService::ins()->first([
+    			'name' => 'generate-month-dues',
+    			'due_date' => Carbon::parse($request->due_date)
+    		]);
 
-    		$monthDueService->generateMonthDue($data['due_date'] ?? null);
-
-    		DB::commit();
-
-    		return;
+    		return response()->json($process);
 
     	} catch(\Exception $e) {}
-
-    	DB::rollBack();
 
     	$errorResponse = new ErrorResponse($e);
 

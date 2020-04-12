@@ -21,12 +21,19 @@ class CreatePaymentsTable extends Migration
                 ->default(null);
                 
             $table->decimal('amount_due')->default(0);
-            $table->decimal('prev_balance')->default(0);
             $table->decimal('amount_received')->default(0);
             $table->decimal('amount_paid')->default(0);
             $table->decimal('current_balance')->default(0);
             $table->date('due_date');
+            $table->tinyInteger('other_payment')
+                ->default(0)
+                ->comment('not included in month due, recording only');
+
             $table->date('paid_at')
+                ->nullable()
+                ->default(null);
+
+            $table->string('description')
                 ->nullable()
                 ->default(null);
 

@@ -7,7 +7,8 @@ use Illuminate\Support\Str;
 use App\Services\{
     AccountService,
     OtherChargeService,
-    PaymentService
+    PaymentService,
+    MonthlyDueService
 };
 use Carbon\Carbon;
 
@@ -15,34 +16,14 @@ class TestController extends Controller
 {
     public function test()
     {
-        PaymentService::ins()->copyAccountsToPayments(Carbon::parse('2020-04-30'));
-        die;
+        MonthlyDueService::ins()
+            ->setDueDate(Carbon::parse('2020-04-30'))
+            ->generateAdjustments();
 
-        // $result = AccountService::ins()
-        //     ->getModel()
-        //     ->whereRaw('accounts.account_id NOT IN(select account_id from payments WHERE due_date = ?)', ['2020-05-30'])
-        //     ->get();
+        // PaymentService::ins()->initPayments(Carbon::parse('2020-04-30'));
+        
 
-        // $result = AccountService::ins()
-        //     ->findBy('status', 'active')
-        //     ->each(function($model){
-        //         $model['payment'] = PaymentService::ins()
-        //             ->getModel()
-        //             ->where('account_id', $model->account_id)
-        //             ->orderBy('due_date', 'desc')
-        //             ->first();
-        //     });
 
-        // $result = OtherChargeService::ins()
-        //     ->getModel()
-        //     ->where('due_date', '2020-04-30')
-        //     ->join('fees', function($join){
-        //         $join->on('other_charges.fee_id', '=', 'fees.fee_id')
-        //             ->where('fees.other_fee', 0);
-        //     })
-        //     ->get();
-
-        echo $result->toJson();
         die;
 
 

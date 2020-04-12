@@ -20,6 +20,11 @@ class Account extends Base
         return $this->hasMany(__NAMESPACE__ . '\\OtherCharge', 'account_id', 'account_id');
     }
 
+    public function adjustments()
+    {
+        return $this->hasMany(__NAMESPACE__ . '\\Adjustment', 'account_id', 'account_id');
+    }
+
     public function setAccountNameAttribute($value)
     {
     	$this->attributes['account_name'] = strtoupper($value);

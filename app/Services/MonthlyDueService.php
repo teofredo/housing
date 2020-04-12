@@ -14,42 +14,75 @@ class MonthlyDueService extends AbstractService
 {
 	protected static $class = __CLASS__;
 
+	private $dueDate;
+
 	public function model()
 	{
 		return MonthlyDue::class;
 	}
 
-	public function generateMonthDue($dueDate=null)
+	public function checkGeneratorLock()
 	{
 		$generatorLock = dbConfig('generator-lock');
 		if(!$generatorLock || $generatorLock->value == 0) {
 			throw new \Exception('generator-lock must be defined and enabled in config');
 		}
 
-		$dueDate = $dueDate ? Carbon::parse($dueDate) : getNextPaymentDueDate();
-
-		//loop through month due codes
-		$codes = config('fairchild.month-due-codes');
-		foreach($codes as $code) {
-			$method = 'generate' . Str::studly(str_replace('-', '_', $code));
-			if(method_exists($this, $method)) {
-				$this->$method($code, $dueDate);
-			}
-		}
+		return $this;
 	}
 
-	public function generatePenaltyNonPayment($code, Carbon $dueDate)
+	public function setDueDate(Carbon $dueDate)
+	{
+		$this->dueDate = $dueDate;
+		return $this;
+	}
+
+	public function generateAdjustments()
+	{
+		AccountService::ins()
+			->getModel()
+            ->where('status', 'active')
+            ->with(['adjustments' => function($q){
+            	$q->where('due_date', $this->dueDate);
+            }])
+            ->get()
+            ->each(function($model){
+            	if(!$model->adjustments->toArray()) {
+            		return true; // continue
+            	}
+
+            	$amountDue = $model->adjustments->sum('amount');
+
+            	$data = [
+            		'amount_due' => $amountDue,
+            		'adjustments' => $model->adjustments->toArray()
+            	];
+
+            	$this->model->updateOrCreate(
+					['code' => 'adjustments', 'account_id' => $model->account_id, 'due_date' => $this->dueDate],
+					['amount_due' => $amountDue, 'data' => json_encode($data, JSON_UNESCAPED_SLASHES)]
+				);
+        	});
+
+        return $this;
+	}
+
+	public function generatePenaltyForNonPayment()
 	{
 		AccountService::ins()
             ->findBy('status', 'active')
-            ->each(function($model) use($dueDate){
+            ->each(function($model){
                 /**
                 * get last payment history
                 */
                 $payment = PaymentService::ins()
                     ->getModel()
-                    ->where('account_id', $model->account_id)
+                    ->where([
+                    	'account_id' => $model->account_id,
+                    	'other_payment' => 0
+                    ])
                     ->orderBy('due_date', 'desc')
+                    ->orderBy('created_at', 'desc')
                     ->first();
 
                 if(!$payment) {
@@ -63,65 +96,87 @@ class MonthlyDueService extends AbstractService
 
                 	// get total amount due for the month
 	                $monthDues = MonthlyDueService::ins()
+	                	->getModel()
 	                	->where([
 	                		'account_id' => $model->account_id,
-	                		'due_date' => $dueDate
+	                		'due_date' => $this->dueDate
 	                	])
-	                	->whereNotIn('code', ['adjustments']);
+	                	->whereNotIn('code', ['penalty-non-payment', 'adjustments']);
 
 	                //add penalty to original amount
-	                $amountDue = $monhthDues->sum('amount_due');
-	                $percent = (double) dbConfig('penalty')->value;
-	                $penalty = $amountDue * ($penalty/100);
+	                $amountDue = $monthDues->sum('amount_due');
+	                $percent = (double) dbConfig('penalty-non-payment')->value;
+	                $penalty = $amountDue * ($percent/100);
 	                $adWithPenalty = $amountDue + $penalty;
 
 	                $data = [
-	                	'last_payment' => $payment->toJson(),
-	                	'month_dues' => $monthDues->get()->toJson(),
 	                	'amount_due' => $amountDue,
 	                	'penalty' => $penalty,
-	                	'ad_with_penalty' => $adWithPenalty
+	                	'ad_with_penalty' => $adWithPenalty,
+	                	'last_payment' => $payment->toArray(),
+	                	'month_dues' => $monthDues
+	                		->select('id','code','account_id','due_date','amount_due')
+	                		->get()
+	                		->toArray()
 	                ];
 
 	            	$this->model->updateOrCreate(
-						['code' => $code, 'account_id' => $model->account_id, 'due_date' => $dueDate],
-						['amount_due' => $penalty, 'data' => json_encode($data)]
+						['code' => 'penalty-non-payment', 'account_id' => $model->account_id, 'due_date' => $this->dueDate],
+						['amount_due' => $penalty, 'data' => json_encode($data, JSON_UNESCAPED_SLASHES)]
 					);
 	            }
-
             });
+
+        return $this;
 	}
 
-	public function generatePrevBalance($code, Carbon $dueDate)
+	public function generatePreviousBalance()
 	{
-		PaymentService::ins()
-			->getModel()
-			->where('due_date', $dueDate->copy()->subMonthNoOverflow())
-			->where('current_balance', '>', 0)
-			->get()
-			->each(function($model) use($code, $dueDate){
-				$this->model->updateOrCreate(
-					['code' => $code, 'account_id' => $model->account_id, 'due_date' => $dueDate],
-					['amount_due' => $model->current_balance, 'data' => $model->toJson()]
-				);
-			});
+		AccountService::ins()
+            ->findBy('status', 'active')
+            ->each(function($model){
+
+			$payment = PaymentService::ins()
+                ->getModel()
+                ->where([
+                	'account_id' => $model->account_id,
+                	'other_payment' => 0
+                ])
+                ->orderBy('due_date', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if(!$payment) {
+            	return true;
+            }
+
+            $this->model->updateOrCreate(
+				['code' => 'prev-balance', 'account_id' => $model->account_id, 'due_date' => $this->dueDate],
+				['amount_due' => $payment->current_balance, 'data' => $payment->toJson()]
+			);
+		});
+
+        return $this;
 	}
 
-	public function generateOtherCharges($code, Carbon $dueDate)
+	public function generateOtherCharges()
 	{
 		/**
 		* delete non other fees, mandatory fees
 		*/
 		OtherChargeService::ins()
 			->getModel()
-			->where('due_date', $dueDate)
+			->where('due_date', $this->dueDate)
 			->join('fees', function($join){
 				$join->on('other_charges.fee_id', '=', 'fees.fee_id')
 					->where('fees.other_fee', 0);
 			})
-			->delete();
+			->forceDelete();
 
-		$accounts = AccountService::ins()->findBy('status', 'active');
+		$accounts = AccountService::ins()
+			->getModel()
+			->where('status', 'active');
+
 		$fees = FeeService::ins()->findBy('other_fee', 0);
 
 		/**
@@ -129,14 +184,14 @@ class MonthlyDueService extends AbstractService
 		*/
 		$accounts
 			->get()
-			->each(function($model) use($fees, $dueDate){
-				$fees->each(function($fee) use($model, $dueDate){
+			->each(function($model) use($fees){
+				$fees->each(function($fee) use($model){
 					OtherChargeService::ins()->add([
 						'account_id' => $model->account_id,
 						'fee_id' => $fee->fee_id,
 						'description' => $fee->name,
 						'amount' => $fee->fee,
-						'due_date' => $dueDate
+						'due_date' => $this->dueDate
 					]);
 				});
 			});
@@ -145,37 +200,42 @@ class MonthlyDueService extends AbstractService
 		* add to month due
 		*/
 		$accounts
-			->with(['otherCharges' => function($q) use($dueDate){
-				$q->where('due_date', $dueDate);
+			->with(['otherCharges' => function($q){
+				$q->where('due_date', $this->dueDate);
 			}])
 			->get()
-			->each(function($model) use($code, $dueDate){
+			->each(function($model){
+				if(!$model->otherCharges->toArray()) {
+            		return true; // continue
+            	}
+
 				$amountDue = $model->otherCharges->sum('amount');
 
 				$data = [
-					'charges' => $model->otherCharges->toJson(),
-					'code' => $code,
+					'charges' => $model->otherCharges->toArray(),
 					'amount_due' => $amountDue,
 				];
 
 				$this->model->updateOrCreate(
-					['code' => $code, 'account_id' => $model->account_id, 'due_date' => $dueDate],
-					['amount_due' => $amountDue, 'data' => json_encode($data)]
+					['code' => 'other-charges', 'account_id' => $model->account_id, 'due_date' => $this->dueDate],
+					['amount_due' => $amountDue, 'data' => json_encode($data, JSON_UNESCAPED_SLASHES)]
 				);
 			});
+
+		return $this;
 	}
 
-	public function generateInternetFee($code, Carbon $dueDate)
+	public function generateInternetFee()
 	{
 		InternetSubscriptionService::ins()
 			->get([
 				'active' => 1,
 				'installed' => 1
 			])
-			->each(function($model) use($code, $dueDate){
+			->each(function($model){
 				$model->installed_at = Carbon::parse($model->installed_at);
-				$currentMonth = $dueDate->format('Y-m');
-				$lastMonth = $dueDate
+				$currentMonth = $this->dueDate->format('Y-m');
+				$lastMonth = $this->dueDate
 					->copy()
 					->subMonthNoOverflow()
 					->format('Y-m');
@@ -184,9 +244,9 @@ class MonthlyDueService extends AbstractService
 				$cutOff = dbConfig('cut-off')->value;
 				$proRatedDays = (int) dbConfig('pro-rated')->value;
 
-				$currentCutOff = $dueDate->copy()->day($cutOff);
+				$currentCutOff = $this->dueDate->copy()->day($cutOff);
 				$lastCutOff = $currentCutOff->copy()->subMonthNoOverflow();
-				$lastDueDate = $dueDate->copy()->subMonthNoOverflow();
+				$lastDueDate = $this->dueDate->copy()->subMonthNoOverflow();
 
 				if(!$currentCutOff->isValid() || !$lastCutOff->isValid()) {
 					throw new \Exception('cut off date is not valid');
@@ -221,7 +281,7 @@ class MonthlyDueService extends AbstractService
 						*/
 						$due_date = $lastDueDate;
 						if($diffInDaysToLastCutOff < $proRatedDays) {
-							$due_date = $dueDate;
+							$due_date = $this->dueDate;
 						}
 
 						$fee = FeeService::ins()->findFirst('code', 'other-fee');
@@ -242,7 +302,7 @@ class MonthlyDueService extends AbstractService
 					&& $model->installed_at->gt($lastCutOff))
 					|| $monthInstalled == $currentMonth) {
 
-					$daysInMonth = (int)$dueDate
+					$daysInMonth = (int)$this->dueDate
 						->copy()
 						->endOfMonth()
 						->format('d');
@@ -256,9 +316,9 @@ class MonthlyDueService extends AbstractService
 					$proRatedFrom = $model->installed_at->format('m/d/y');
 					$proRatedTo = $currentCutOff->format('m/d/y');
 
-					$due_date = $dueDate;
+					$due_date = $this->dueDate;
 					if($diffInDaysToCurrentCutOff < $proRatedDays) {
-						$due_date = $dueDate->copy()->addMonthNoOverflow();
+						$due_date = $this->dueDate->copy()->addMonthNoOverflow();
 					}
 
 					$fee = FeeService::ins()->findFirst('code', 'other-fee');
@@ -276,24 +336,26 @@ class MonthlyDueService extends AbstractService
 				*/
 				} else if($model->installed_at->lt($lastDueDate->copy()->startOfMonth())) {
 					$data = [
-						'plan' => $model->plan->toJson(),
-						'subscription' => $model->toJson(),
+						'plan' => $model->plan->toArray(),
+						'subscription' => $model->toArray(),
 						'amount_due' => $model->plan->monthly
 					];
 
 					$this->model->updateOrCreate(
-						['code' => $code, 'account_id' => $model->account_id, 'due_date' => $dueDate],
-						['amount_due' => $model->plan->monthly, 'data' => json_encode($data)]
+						['code' => 'internet-fee', 'account_id' => $model->account_id, 'due_date' => $this->dueDate],
+						['amount_due' => $model->plan->monthly, 'data' => json_encode($data, JSON_UNESCAPED_SLASHES)]
 					);
 				}
 			});
+
+		return $this;
 	}
 
-	public function generateWaterBill($code, Carbon $dueDate)
+	public function generateWaterBill()
 	{
 		WaterReadingService::ins()
-			->findBy('due_date', $dueDate)
-			->each(function($model) use($code, $dueDate){
+			->findBy('due_date', $this->dueDate)
+			->each(function($model){
 				$consumption = $model->curr_read - $model->prev_read;
 				
 				$waterRate = WaterRateService::ins()
@@ -309,16 +371,18 @@ class MonthlyDueService extends AbstractService
 				$amountDue = ($consumption * $waterRate->per_m3) ?: (double)$waterRate->min_fee;
 
 				$data = [
-					'reading' => $model->toJson(),
-					'rate' => $waterRate->toJson(),
+					'reading' => $model->toArray(),
+					'rate' => $waterRate->toArray(),
 					'consumption' => $consumption,
 					'amount_due' => $amountDue
 				];
 
 				$this->model->updateOrCreate(
-					['code' => $code, 'account_id' => $model->account_id, 'due_date' => $dueDate],
-					['amount_due' => $amountDue, 'data' => json_encode($data)]
+					['code' => 'water-bill', 'account_id' => $model->account_id, 'due_date' => $this->dueDate],
+					['amount_due' => $amountDue, 'data' => json_encode($data, JSON_UNESCAPED_SLASHES)]
 				);
 			});
+
+		return $this;
 	}
 }

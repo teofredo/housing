@@ -37,9 +37,22 @@ class ErrorResponse
 		// }
 	}
 	
+	/**
+	* instance of http response
+	*/
 	public function toJson()
 	{
 		return response()->json([
+			'error' => $this->format
+		]);
+	}
+
+	/**
+	* raw json
+	*/
+	public function toRawJson()
+	{
+		return json_encode([
 			'error' => $this->format
 		]);
 	}
