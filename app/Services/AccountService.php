@@ -3,7 +3,8 @@ namespace App\Services;
 
 use App\Models\{
 	Account,
-	Householder
+	Householder,
+	User
 };
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -77,7 +78,19 @@ class AccountService extends AbstractService
 		$householder->house_no = $houseNo;
 		$householder->water_meter_no = str_rot13($houseNo);
 		$householder->save();
-		
+
+		//add to users table
+		$user = User::create([
+			'name' => $account->account_name,
+			'email' => $account->email,
+			'password' => $account->password,
+			'user_type' => 'account',
+			'account_id' => $account->account_id
+		]);
+		if(!$user) {
+			throw new \Exception('failed to add user');
+		}
+
 		return $account;
 	}
 }

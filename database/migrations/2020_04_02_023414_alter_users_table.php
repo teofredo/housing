@@ -15,6 +15,12 @@ class AlterUsersTable extends Migration
     {
         Schema::table('users', function(Blueprint $table){
             $table->softDeletes();
+            $table->enum('user_type', ['superadmin', 'admin', 'report', 'account', 'water-reader'])
+                ->nullable()
+                ->default(null);
+            $table->integer('account_id')
+                ->nullable()
+                ->default(null);
         });
     }
 

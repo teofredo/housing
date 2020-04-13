@@ -59,11 +59,20 @@ class AuthController extends Controller
     ) {
         try {
             $validator->validate($request->all());
-            
+
+            /**
+            * add emp prefix for employees
+            * to prevent email conflict
+            * due to shared models
+            * admin users and owner/tenant accounts
+            */
+            $email = ($request->user_type != 'account' ? 'emp' : '') . ".{$request->email}";
+
             $user = User::create([
                 'name' => $request->name,
-                'email' => $request->email,
-                'password' => bcrypt($request->password)
+                'email' => $email,
+                'password' => bcrypt($request->password),
+                'user_type' => $request->user_type
             ]);
             
             return response()->json(['message' => 'success']);
