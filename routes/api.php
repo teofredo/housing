@@ -85,4 +85,9 @@ Route::group([
 	Route::prefix('process')->group(function(){
 		Route::get('/{id?}', 'ProcessController@index');
 	});
+	
+	Route::prefix('users')->group(function(){
+		Route::get('/{id?}', 'UsersController@index');
+		Route::post('/', 'UsersController@postOverride');
+	});
 });

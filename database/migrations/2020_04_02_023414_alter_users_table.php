@@ -14,13 +14,23 @@ class AlterUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function(Blueprint $table){
+            $table->string('username')
+                ->unique()
+                ->after('name');
+                
+            $table->string('email')
+                ->nullable()
+                ->default(null)
+                // ->unique()
+                ->after('username')
+                ->change();
+                
+            $table->enum('user_type', ['superadmin','admin','report','water-reader'])
+                ->nullable()
+                ->default(null)
+                ->after('remember_token');
+                
             $table->softDeletes();
-            $table->enum('user_type', ['superadmin', 'admin', 'report', 'account', 'water-reader'])
-                ->nullable()
-                ->default(null);
-            $table->integer('account_id')
-                ->nullable()
-                ->default(null);
         });
     }
 
@@ -33,6 +43,11 @@ class AlterUsersTable extends Migration
     {
         Schema::table('users', function(Blueprint $table){
             $table->dropSoftDeletes();
+            $table->string('email')
+                ->unique()
+                ->change();
+                
+            $table->dropColumn(['username', 'user_type']);
         });
     }
 }
