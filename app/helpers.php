@@ -11,7 +11,7 @@ function pr(array $data)
 	die;
 }
 
-function vd(...$data)
+function vd($data)
 {
 	var_dump($data);
 	die;

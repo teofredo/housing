@@ -16,6 +16,9 @@ class TestController extends Controller
 {
     public function test()
     {
+        echo bcrypt('123456789'); 
+        die;
+        
         MonthlyDueService::ins()
             ->setDueDate(Carbon::parse('2020-04-30'))
             ->generateAdjustments();

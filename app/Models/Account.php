@@ -2,13 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Account extends Base
+class Account extends Authenticatable
 {
-	use SoftDeletes;
+	use HasApiTokens, Notifiable, SoftDeletes;
 
     protected $primaryKey = 'account_id';
+    
+    protected $guarded = [];
     
     public function householder()
     {
@@ -28,5 +34,12 @@ class Account extends Base
     public function setAccountNameAttribute($value)
     {
     	$this->attributes['account_name'] = strtoupper($value);
+    }
+    
+    public function getTableColumns()
+    {
+        return $this->getConnection()
+            ->getSchemaBuilder()
+            ->getColumnListing($this->getTable());
     }
 }

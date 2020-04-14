@@ -6,6 +6,9 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use App\Models\Oauth\Token;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -26,9 +29,19 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
-
-        Passport::routes();
         
-        Passport::tokensExpireIn(Carbon::now()->addHours(5));
+        // Route::group(['middleware' => 'auth.provider'], function(){
+        //     $provider = $this->app->request->provider ?? 'users';
+            
+            Passport::routes();
+            Passport::tokensExpireIn(Carbon::now()->addHours(5));
+            
+        //     if($provider == 'accounts') {
+        //         Passport::useTokenModel(Token::class);   
+        //     }
+        // });
+            
+            
+        Passport::tokensCan();
     }
 }

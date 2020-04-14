@@ -3,11 +3,16 @@
 Route::group([
 	'prefix' => 'v1',
 	'middleware' => [
-		'throttle:60,1'
+		'throttle:60,1',
+		// 'auth.provider'
 	]
-], function() {
-	Route::post('/signup', 'AuthController@signup');
-	Route::post('/login', 'AuthController@login');
+], function($r) {
+	$r->post('/login', 'UsersController@login');
+	
+	$r->group(['prefix' => 'auth'], function($r){
+		$r->get('/user', 'AuthController@user')->middleware('auth:api');
+		$r->get('/account', 'AuthController@user')->middleware('auth:accounts');
+	});
 });
 
 Route::group([
@@ -16,78 +21,78 @@ Route::group([
 		'auth:api',
 		'throttle:60,1'
 	]
-], function() {
-	Route::get('/user', 'AuthController@user');
-	Route::post('/logout', 'AuthController@logout');
+], function($r) {
 	
-	Route::prefix('blocks')->group(function(){
-		Route::get('/{id?}', 'BlocksController@index');
-		Route::post('/', 'BlocksController@post');
+	$r->post('/logout', 'AuthController@logout');
+	
+	$r->prefix('blocks')->group(function($r){
+		$r->get('/{id?}', 'BlocksController@index');
+		$r->post('/', 'BlocksController@post');
 	});
 	
-	Route::prefix('lots')->group(function(){
-		Route::get('/{id?}', 'LotsController@index');
-		Route::post('/', 'LotsController@postOverride');
+	$r->prefix('lots')->group(function($r){
+		$r->get('/{id?}', 'LotsController@index');
+		$r->post('/', 'LotsController@postOverride');
 	});
 	
-	Route::prefix('accounts')->group(function(){
-		Route::get('/{id?}', 'AccountsController@index');
-		Route::post('/', 'AccountsController@postOverride');
+	$r->prefix('accounts')->group(function($r){
+		$r->get('/{id?}', 'AccountsController@index');
+		$r->post('/', 'AccountsController@postOverride');
 	});
 	
-	Route::prefix('internet-plans')->group(function(){
-		Route::get('/{id?}', 'InternetPlansController@index');
-		Route::post('/', 'InternetPlansController@post');
+	$r->prefix('internet-plans')->group(function($r){
+		$r->get('/{id?}', 'InternetPlansController@index');
+		$r->post('/', 'InternetPlansController@post');
 	});
 	
-	Route::prefix('water-rates')->group(function(){
-		Route::get('/{id?}', 'WaterRatesController@index');
-		Route::post('/', 'WaterRatesController@postOverride');
+	$r->prefix('water-rates')->group(function($r){
+		$r->get('/{id?}', 'WaterRatesController@index');
+		$r->post('/', 'WaterRatesController@postOverride');
 	});
 	
-	Route::prefix('fees')->group(function(){
-		Route::get('/{id?}', 'FeesController@index');
-		Route::post('/', 'FeesController@post');
+	$r->prefix('fees')->group(function($r){
+		$r->get('/{id?}', 'FeesController@index');
+		$r->post('/', 'FeesController@post');
 	});
 	
-	Route::prefix('internet-subscriptions')->group(function(){
-		Route::get('/{id?}', 'InternetSubscriptionsController@index');
-		Route::post('/', 'InternetSubscriptionsController@postOverride');
+	$r->prefix('internet-subscriptions')->group(function($r){
+		$r->get('/{id?}', 'InternetSubscriptionsController@index');
+		$r->post('/', 'InternetSubscriptionsController@postOverride');
 	});
 	
-	Route::prefix('water-readings')->group(function(){
-		Route::get('/{id?}', 'WaterReadingsController@index');
-		Route::post('/', 'WaterReadingsController@postOverride');
+	$r->prefix('water-readings')->group(function($r){
+		$r->get('/{id?}', 'WaterReadingsController@index');
+		$r->post('/', 'WaterReadingsController@postOverride');
 	});
 
-	Route::prefix('other-charges')->group(function(){
-		Route::get('/{id?}', 'OtherChargesController@index');
-		Route::post('/', 'OtherChargesController@postOverride');
+	$r->prefix('other-charges')->group(function($r){
+		$r->get('/{id?}', 'OtherChargesController@index');
+		$r->post('/', 'OtherChargesController@postOverride');
 	});
 
-	Route::prefix('adjustments')->group(function(){
-		Route::get('/{id?}', 'AdjustmentsController@index');
-		Route::post('/', 'AdjustmentsController@post');
+	$r->prefix('adjustments')->group(function($r){
+		$r->get('/{id?}', 'AdjustmentsController@index');
+		$r->post('/', 'AdjustmentsController@post');
 	});
 
-	Route::prefix('monthly-dues')->group(function(){
-		Route::get('/{id?}', 'MonthlyDuesController@index');
+	$r->prefix('monthly-dues')->group(function($r){
+		$r->get('/{id?}', 'MonthlyDuesController@index');
 
 		//using commands
-		Route::post('/', 'MonthlyDuesController@postOverride');
+		$r->post('/', 'MonthlyDuesController@postOverride');
 	});
 
-	Route::prefix('payments')->group(function(){
-		Route::get('/{id?}', 'PaymentsController@index');
-		Route::post('/', 'PaymentsController@postOverride');
+	$r->prefix('payments')->group(function($r){
+		$r->get('/{id?}', 'PaymentsController@index');
+		$r->post('/', 'PaymentsController@postOverride');
 	});
 
-	Route::prefix('process')->group(function(){
-		Route::get('/{id?}', 'ProcessController@index');
+	$r->prefix('process')->group(function($r){
+		$r->get('/{id?}', 'ProcessController@index');
 	});
 	
-	Route::prefix('users')->group(function(){
-		Route::get('/{id?}', 'UsersController@index');
-		Route::post('/', 'UsersController@postOverride');
+	$r->prefix('users')->group(function($r){
+		$r->get('/{id?}', 'UsersController@index');
+		$r->post('/', 'UsersController@postOverride');
 	});
 });
