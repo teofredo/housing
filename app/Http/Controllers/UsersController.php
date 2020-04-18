@@ -9,6 +9,7 @@ use Illuminate\Http\{
 use App\Models\User;
 use App\Transformers\UserTransformer;
 use App\Validators\UserValidator;
+use App\Services\ErrorResponse;
 
 class UsersController extends Controller
 {
@@ -54,36 +55,12 @@ class UsersController extends Controller
     public function login(Request $request) 
     {
         try {
-            $cookies = $request->cookies->all();
-            
-            if(isset($cookies['user_id']) 
-                && isset($cookies['access_token']) 
-                && isset($cookies['cc_token'])) {
-                
-                $user = $this->authApiService->getUserByAccessToken($cookies['access_token']);
-                $user = User::find($user->id);
-                
-                $user = $this->fractal->item($user, new UserTransformer)->get();
-                
-                return response($user);
-            }
-            
             $data = $request->all();
             
             $token = $this->requestToken('password', $data);
             $user = $this->getAuthUser();
             
-            $response = response()->json($token);
-            
-            $expire = time() + 86400;
-            $domain = '.' . env('CLIENT_DOMAIN');
-            $ccToken = $this->requestToken('client_credentials')->access_token;
-            
-            $response->cookie('user_id', $user->id, $expire, '/', $domain)
-                ->cookie('access_token', $token->access_token, $expire, '/', $domain)
-                ->cookie('cc_token', $ccToken, $expire, '/', $domain);
-                
-            return $response;
+            return response()->json($token);
         } 
         catch(\Exception $e) {}
         

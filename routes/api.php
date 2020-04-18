@@ -4,25 +4,22 @@ Route::group([
 	'prefix' => 'v1',
 	'middleware' => [
 		'throttle:60,1',
-		// 'auth.provider'
+		// 'auth.provider',
+		// 'cors'
 	]
 ], function($r) {
 	$r->post('/login', 'UsersController@login');
-	
-	$r->group(['prefix' => 'auth'], function($r){
-		$r->get('/user', 'AuthController@user')->middleware('auth:api');
-		$r->get('/account', 'AuthController@user')->middleware('auth:accounts');
-	});
 });
 
 Route::group([
 	'prefix' => 'v1',
 	'middleware' => [
 		'auth:api',
-		'throttle:60,1'
+		'throttle:60,1',
+		// 'cors'
 	]
 ], function($r) {
-	
+	$r->get('/auth-user', 'AuthController@user');
 	$r->post('/logout', 'AuthController@logout');
 	
 	$r->prefix('blocks')->group(function($r){

@@ -30,11 +30,18 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
         
+        // Route::group(['middleware' => 'cors'], function(){
+            Passport::routes();
+            Passport::tokensExpireIn(Carbon::now()->addHours(5)); 
+        // }); 
+        
+               
+        
         // Route::group(['middleware' => 'auth.provider'], function(){
         //     $provider = $this->app->request->provider ?? 'users';
             
-            Passport::routes();
-            Passport::tokensExpireIn(Carbon::now()->addHours(5));
+            // Passport::routes();
+            // Passport::tokensExpireIn(Carbon::now()->addHours(5));
             
         //     if($provider == 'accounts') {
         //         Passport::useTokenModel(Token::class);   
@@ -42,6 +49,6 @@ class AuthServiceProvider extends ServiceProvider
         // });
             
             
-        Passport::tokensCan();
+        // Passport::tokensCan();
     }
 }

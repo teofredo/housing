@@ -3,18 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Transformers\{
-    UserTransformer,
-    AccountTransformer
-};
 use App\Services\ErrorResponse;
 use App\Exceptions\ValidationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use App\Models\{
-    User,
-    Account
-};
+use App\Models\User;
+use App\Transformers\UserTransformer;
 
 class AuthController extends Controller
 {
@@ -22,16 +16,7 @@ class AuthController extends Controller
     {
         try {
             $resource = Auth::user();
-            
-            if ($resource instanceof User) {
-                $transformer = UserTransformer::class;
-            } elseif ($resource instanceof Account) {
-                $transformer = AccountTransformer::class;
-            } else {
-                return;
-            }
-            
-            $resource = $this->fractal->item($resource, new $transformer)->get();
+            $resource = $this->fractal->item($resource, new UserTransformer)->get();
             
             return response($resource);
         }

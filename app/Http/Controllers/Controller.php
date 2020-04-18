@@ -125,13 +125,17 @@ class Controller extends BaseController
             $token = $this->authApiService
                 ->setReqData($data)
                 ->getToken();
+            
+            if(isset($token->error)) {
+                throw new \Exception('Unauthenticated');
+            }
                 
             if($data['grant_type'] == 'password') {
                 $this->authUser = $this->authApiService->getUserByAccessToken($token->access_token);
             }
             
             \App\Models\AccessToken::create([
-                'user_id' => $this->authUser->id ?? null,
+                'user_id' => $this->authUser->user_id ?? null,
                 'access_token' => $token->access_token,
                 'refresh_token' => $token->refresh_token ?? null,
                 'expired_at' => Carbon::createFromTimestamp(time() + $token->expires_in)

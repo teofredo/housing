@@ -62,7 +62,7 @@ class AuthApiService
 	
 	public function getUserByAccessToken($accessToken)
 	{
-		$endpoint = "{$this->authUrl}/api/v1/user";
+		$endpoint = "{$this->authUrl}/api/v1/auth-user";
         $request = [];
         $headers = ["Authorization: Bearer {$accessToken}"];
         
@@ -72,10 +72,10 @@ class AuthApiService
             throw new \Exception('Unauthenticated');
         }
         
-        if(empty($response->id)) {
+        if(empty($response->data->user_id)) {
             throw new \Exception('Unauthenticated');    
         }
         
-        return $response;
+        return $response->data;
 	}
 }

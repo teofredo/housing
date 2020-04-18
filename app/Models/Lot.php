@@ -15,9 +15,9 @@ class Lot extends Base
     	return $this->belongsTo(__NAMESPACE__ . '\\Block', 'block_id', 'block_id');
     }
     
-    public function resident()
+    public function householder()
     {
-    	return $this->hasOne(__NAMESPACE__ . '\\Resident', 'lot_id');
+    	return $this->hasOne(__NAMESPACE__ . '\\Householder', 'lot_id');
     }
 
     public function setNameAttribute($value)
