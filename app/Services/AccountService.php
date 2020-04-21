@@ -74,7 +74,7 @@ class AccountService extends AbstractService
 		}
 
 		//create householder house_no and water_meter_no
-		$houseNo = str_replace('-', '', "{$householder->lot->block->name}{$householder->lot->name}");
+		$houseNo = "{$householder->lot->block->name}{$householder->lot->name}";
 		$householder->house_no = $houseNo;
 		$householder->water_meter_no = str_rot13($houseNo);
 		$householder->save();

@@ -37,6 +37,10 @@ Route::group([
 		$r->post('/', 'AccountsController@postOverride');
 	});
 	
+	$r->prefix('householders')->group(function($r){
+		$r->get('/{id?}', 'HouseholdersController@index');
+	});
+	
 	$r->prefix('internet-plans')->group(function($r){
 		$r->get('/{id?}', 'InternetPlansController@index');
 		$r->post('/', 'InternetPlansController@post');

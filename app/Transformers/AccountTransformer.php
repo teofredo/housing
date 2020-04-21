@@ -23,7 +23,7 @@ class AccountTransformer extends AbstractTransformer
 			'email' => $model->email,
 			'username' => $model->username,
 			'activated_at' => $model->activated_at,
-			'active' => $model->active,
+			'status' => $model->status,
 			'created_at' => $model->created_at
 		];
 	}

@@ -15,9 +15,9 @@ class Block extends Base
     	return $this->hasMany(__NAMESPACE__ . '\\Lot', 'block_id');
     }
     
-    public function residents()
+    public function householders()
     {
-    	return $this->hasMany(__NAMESPACE__ . '\\Resident', 'block_id');
+    	return $this->hasMany(__NAMESPACE__ . '\\Householder', 'block_id');
     }
 
     public function setNameAttribute($value)
