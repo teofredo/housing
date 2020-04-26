@@ -24,13 +24,13 @@ class AccountService extends AbstractService
 		* build account data
 		*/
 		$data['username'] = $data['email'];
-		$data['password'] = bcrypt($data['password']);
+		$data['password'] = isset($data['password']) ? bcrypt($data['password']) : null;
 		
 		//build account_name
 		$middlename = $data['middlename'] ?? null;
-		$mi = $middlename[0];
+		$mi = $middlename[0] . '.';
 		$suffix = $data['suffix'] ?? null;
-		$data['account_name'] = "{$data['firstname']} {$mi}. {$data['lastname']} {$suffix}";
+		$data['account_name'] = "{$data['firstname']} {$mi} {$data['lastname']} {$suffix}";
 		
 		//others
 		$data['parent_id'] = $data['parent_id'] ?? null;
@@ -78,6 +78,9 @@ class AccountService extends AbstractService
 		$householder->house_no = $houseNo;
 		$householder->water_meter_no = str_rot13($houseNo);
 		$householder->save();
+		
+		//todo > job worker > send email verification link with reset password
+		//
 
 		return $account;
 	}

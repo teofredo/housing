@@ -29,7 +29,7 @@ class HouseholderTransformer extends AbstractTransformer
 			'lastname' => $name->last,
 			'middlename' => $name->middle,
 			'suffix' => $name->suffix,
-			'contact_no' => $model->contant_no,
+			'contact_no' => $model->contact_no,
 			'moved_in' => $model->moved_in,
 			'remarks' => $model->remarks,
 			'created_at' => $model->created_at

@@ -5,14 +5,14 @@ class AccountValidator extends BaseValidator
 {
 	protected $rules = [
 		'email' => 'required|string|unique:accounts,email',
-		'password' => 'required|string',
+		'password' => 'sometimes|string',
 		
 		//householder rules
 		'householder_type' => 'required|string|in:owner,tenant',
 		'lastname' => 'required|string',
 		'firstname' => 'required|string',
-		'middlename' => 'sometimes|string',
-		'suffix' => 'sometimes|string',
+		'middlename' => 'sometimes|string|nullable',
+		'suffix' => 'sometimes|string|nullable',
 		'contact_no' => 'required|string',
 		'block_id' => 'required|integer',
 		'lot_id' => 'required|integer',
@@ -25,7 +25,7 @@ class AccountValidator extends BaseValidator
 		'email.required' => 'email is required',
 		'email.email' => 'invalid email address',
 		'email.unique' => 'email address is already taken',
-		'password.required' => 'password is required',
+		// 'password.required' => 'password is required',
 		
 		//householder feedbacks
 		'householder_type.required' => 'householder_type is required',
@@ -37,7 +37,7 @@ class AccountValidator extends BaseValidator
 		'block_id.integer' => 'block_id must be integer',
 		'lot_id.required' => 'lot_id is required',
 		'lot_id.integer' => 'lot_id must be integer',
-		'lot_id.unique' => 'the unit has already been taken'
+		'lot_id.unique' => 'the house has already been taken'
 	];
 	
 	protected function overrideRules()
