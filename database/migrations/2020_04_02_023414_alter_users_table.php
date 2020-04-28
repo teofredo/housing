@@ -21,7 +21,6 @@ class AlterUsersTable extends Migration
             $table->string('email')
                 ->nullable()
                 ->default(null)
-                // ->unique()
                 ->after('username')
                 ->change();
                 

@@ -16,9 +16,9 @@ class TestController extends Controller
 {
     public function test()
     {
-        $result = \App\Models\Block::with('lots')->get()->toJson();
-        print_r($result);
-        die;
+        // $result = \App\Models\Block::with('lots')->get()->toJson();
+        // print_r($result);
+        // die;
         
         
         echo bcrypt('123456789'); 
