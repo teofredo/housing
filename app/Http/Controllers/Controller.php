@@ -15,10 +15,11 @@ use App\Services\{
 };
 
 use Illuminate\Support\Carbon;
+use App\Traits\ApiQueryBuilder;
 
 class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, ApiQueryBuilder;
 
     protected $fractal;
     
@@ -70,7 +71,13 @@ class Controller extends BaseController
         	$includes = $request->get('_includes');
 
     		if(!$id) {
-    			$resource = $this->model->all();
+                if($where = $request->get('_where')) {
+                    $where = $this->parseWhere($where);
+                    $resource = $this->model->where($where)->get();
+                } else {
+                    $resource = $this->model->all();
+                }
+
     			return $this->fractal
     				->collection($resource, $this->transformer)
     				->includes($includes)
