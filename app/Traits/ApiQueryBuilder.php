@@ -2,6 +2,7 @@
 namespace App\Traits;
 
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 
 trait ApiQueryBuilder
 {
@@ -20,5 +21,24 @@ trait ApiQueryBuilder
 		}
 
 		return $where;
+	}
+
+	public function buildQuery(Request $request)
+	{
+		$model = $this->getModel();
+
+		$data = $request->all();
+
+		if(isset($data['_where'])) {
+			$where = $this->parseWhere($data['_where']);
+            return $model->where($where)->get();
+		}
+
+		if(isset($data['_find'])) {
+			$where = $this->parseWhere($data['_find']);
+			return $model->where($where)->first();
+		}
+
+		return $model->all();
 	}
 }

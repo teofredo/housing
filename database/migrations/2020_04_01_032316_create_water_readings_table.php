@@ -25,7 +25,10 @@ class CreateWaterReadingsTable extends Migration
 
             $table->dateTime('curr_read_date');
             $table->date('due_date');
-            $table->integer('reader_id');
+            $table->string('read_by', 30)
+                ->nullable()
+                ->default(null);
+
             $table->timestamps();
             
             $table->unique(['account_id', 'due_date']);

@@ -71,17 +71,18 @@ class Controller extends BaseController
         	$includes = $request->get('_includes');
 
     		if(!$id) {
-                if($where = $request->get('_where')) {
-                    $where = $this->parseWhere($where);
-                    $resource = $this->model->where($where)->get();
+                $resource = $this->buildQuery($request);
+
+                $fractal = $this->fractal;
+
+                if($resource instanceof Illuminate\Database\Eloquent\Collection) {
+                    $fractal->collection($resource, $this->transformer);
                 } else {
-                    $resource = $this->model->all();
+                    $fractal->item($resource, $this->transformer);
                 }
 
-    			return $this->fractal
-    				->collection($resource, $this->transformer)
-    				->includes($includes)
-    				->get();
+                return $fractal->includes($includes)
+                    ->get();
     		}
 
     		$resource = $this->model->find($id);
@@ -167,5 +168,10 @@ class Controller extends BaseController
     {
         $this->vConstraints = $constraints;
         return $this;
+    }
+
+    protected function getModel()
+    {
+        return $this->model;
     }
 }

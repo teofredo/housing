@@ -41,4 +41,10 @@ class HouseholderTransformer extends AbstractTransformer
 		$lot = $model->lot;
 		return $this->item($lot, new LotTransformer);
 	}
+
+	public function includeAccount(Householder $model)
+	{
+		$account = $model->account;
+		return $this->item($account, new AccountTransformer);
+	}
 }
