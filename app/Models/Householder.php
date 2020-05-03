@@ -21,7 +21,7 @@ class Householder extends Base
     }
     
     /**
-    * Accessors
+    * Mutators
     */
     public function setHouseNoAttribute($value)
     {

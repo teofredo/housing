@@ -43,3 +43,8 @@ function dbConfig($key=null)
 {
 	return \App\Models\Config::where('key', $key)->first();
 }
+
+function getDueDate()
+{
+	return getNextPaymentDueDate();
+}

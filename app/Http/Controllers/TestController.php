@@ -16,6 +16,9 @@ class TestController extends Controller
 {
     public function test()
     {
+        $result = \App\Models\Householder::find(1)->with('account')->get()->toJson();
+        echo $result;
+        die;
         // $result = \App\Models\Block::with('lots')->get()->toJson();
         // print_r($result);
         // die;

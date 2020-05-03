@@ -72,20 +72,20 @@ class Controller extends BaseController
 
     		if(!$id) {
                 $resource = $this->buildQuery($request);
-
-                $fractal = $this->fractal;
-
-                if($resource instanceof Illuminate\Database\Eloquent\Collection) {
-                    $fractal->collection($resource, $this->transformer);
-                } else {
-                    $fractal->item($resource, $this->transformer);
+                if(!$resource) {
+                    throw new \Exception('resource returned an empty result');
                 }
 
-                return $fractal->includes($includes)
-                    ->get();
-    		}
+                if($resource instanceof \Illuminate\Database\Eloquent\Collection) {
+                    return $this->fractal
+                        ->collection($resource, $this->transformer)
+                        ->includes($includes)
+                        ->get();
+                } 
+    		} else {
+                $resource = $this->model->find($id);
+            }
 
-    		$resource = $this->model->find($id);
     		return $this->fractal
     			->item($resource, $this->transformer)
     			->includes($includes)

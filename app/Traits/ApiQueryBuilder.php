@@ -1,7 +1,10 @@
 <?php
 namespace App\Traits;
 
-use Illuminate\Support\Str;
+use Illuminate\Support\{
+	Str,
+	Arr
+};
 use Illuminate\Http\Request;
 
 trait ApiQueryBuilder
@@ -12,33 +15,74 @@ trait ApiQueryBuilder
 
 		$wheres = explode(',', $wheres);
 		foreach($wheres as $w) {
-			if(!Str::contains($w, '=')) {
+			if(!Str::contains($w, ':')) {
 				continue;
 			}
 
-			list($key, $value) = explode('=', $w);
+			list($key, $value) = explode(':', $w);
 			$where[$key] = $value;
 		}
 
 		return $where;
 	}
 
+	public function parseOrderBy($orderbys)
+	{
+		$orderBy = [];
+
+		$orderbys = explode(',', $orderbys);
+		foreach($orderbys as $o) {
+			if(!Str::contains($o, ':')) {
+				continue;
+			}
+
+			list($key, $value) = explode(':', $o);
+			$orderBy[$key] = $value;
+		}
+
+		return $orderBy;
+	}
+
 	public function buildQuery(Request $request)
 	{
 		$model = $this->getModel();
-
 		$data = $request->all();
+
+		//check if there are query builder keys in data
+		$queryBuilderKeys = config('api.query_builder_keys');
+		$qbKeysInData = Arr::where($data, function($value, $key) use($queryBuilderKeys) {
+			return in_array($key, $queryBuilderKeys);
+		});
+
+		if(!$qbKeysInData) {
+			return $model->all();
+		}
+
+		$readfn = 'get';
 
 		if(isset($data['_where'])) {
 			$where = $this->parseWhere($data['_where']);
-            return $model->where($where)->get();
+            $model = $model->where($where);
+            $readfn = 'get';
 		}
 
 		if(isset($data['_find'])) {
 			$where = $this->parseWhere($data['_find']);
-			return $model->where($where)->first();
+			$model = $model->where($where);
+			$readfn = 'first';
 		}
 
-		return $model->all();
+		if(isset($data['_orderby'])) {
+        	$orderBy = $this->parseOrderBy($data['_orderby']);
+        	foreach($orderBy as $key => $value) {
+        		$model = $model->orderBy($key, $value);
+        	}
+        }
+
+		if(isset($data['_limit'])) {
+			$model = $model->limit($data['_limit']);
+		}
+
+		return $model->$readfn();
 	}
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\WaterRate;
 use App\Transformers\WaterRateTransformer;
 use App\Validators\WaterRateValidator;
+use App\Services\WaterReadingService;
 
 class WaterRatesController extends Controller
 {

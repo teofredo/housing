@@ -7,7 +7,7 @@ class HouseholderTransformer extends AbstractTransformer
 {
 	protected $model = Householder::class;
 	
-	protected $availableIncludes = ['lot'];
+	protected $availableIncludes = ['lot', 'account'];
 	
 	public function transform($model)
 	{
