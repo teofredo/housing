@@ -17,11 +17,6 @@ class WaterReadingsController extends Controller
     protected $transformer = WaterReadingTransformer::class;
     protected $validator = WaterReadingValidator::class;
     
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
-    
     public function postOverride(
     	Request $request,
     	WaterReadingService $readingService,

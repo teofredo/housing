@@ -19,11 +19,6 @@ class AccountsController extends Controller
     protected $transformer = AccountTransformer::class;
     protected $validator = AccountValidator::class;
     
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
-    
     public function postOverride(
     	Request $request,
     	AccountValidator $validator,

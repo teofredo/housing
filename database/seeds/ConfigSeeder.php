@@ -22,6 +22,12 @@ class ConfigSeeder extends Seeder
         		'comment' => 'last day of the month'
         	],
 
+            [
+                'key' => 'due-date',
+                'value' => null,
+                'comment' => 'override payment due date'
+            ],
+
         	[
         		'key' => 'cut-off',
         		'value' => 25,
@@ -62,6 +68,12 @@ class ConfigSeeder extends Seeder
                 'key' => 'penalty-late',
                 'value' => 3,
                 'comment' => '(percentage)penalty for late'
+            ],
+
+            [
+                'key' => 'open-water-reading',
+                'value' => 0,
+                'comment' => 'open/close water reading'
             ]
         ]);
     }

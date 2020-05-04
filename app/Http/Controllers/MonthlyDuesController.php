@@ -23,11 +23,6 @@ class MonthlyDuesController extends Controller
     protected $transformer = MonthlyDueTransformer::class;
     protected $validator = MonthlyDueValidator::class;
 
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
-
     public function postOverride(Request $request)
     {
     	$command = 'generate:month-dues';

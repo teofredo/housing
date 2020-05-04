@@ -18,11 +18,6 @@ class PaymentsController extends Controller
     protected $transformer = PaymentTransformer::class;
     protected $validator = PaymentValidator::class;
 
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
-
     public function postOverride(
     	Request $request,
     	PaymentService $paymentService,

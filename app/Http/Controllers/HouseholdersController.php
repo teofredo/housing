@@ -12,9 +12,4 @@ class HouseholdersController extends Controller
     protected $model = Householder::class;
     protected $transformer = HouseholderTransformer::class;
     protected $validator = HouseholderValidator::class;
-    
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
 }

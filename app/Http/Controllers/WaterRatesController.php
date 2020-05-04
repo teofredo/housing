@@ -14,11 +14,6 @@ class WaterRatesController extends Controller
     protected $transformer = WaterRateTransformer::class;
     protected $validator = WaterRateValidator::class;
     
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
-    
     public function postOverride(
     	Request $request,
     	WaterRateValidator $validator

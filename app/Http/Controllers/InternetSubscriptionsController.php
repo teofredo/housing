@@ -18,11 +18,6 @@ class InternetSubscriptionsController extends Controller
     protected $transformer = InternetSubscriptionTransformer::class;
     protected $validator = InternetSubscriptionValidator::class;
     
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
-    
     public function postOverride(
     	Request $request,
     	InternetSubscriptionService $subscriptionService,

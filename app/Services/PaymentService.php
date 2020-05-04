@@ -18,7 +18,7 @@ class PaymentService extends AbstractService
 		$totalDue = $data['amount_due'];
 		$difference = $totalDue - $data['amount_received'];
 
-		//if sufficient amount received
+		//if sufficient amount receivedice
 		if($difference <= 0) {
 			$data['amount_paid'] = $totalDue;
 			$data['current_balance'] = 0;

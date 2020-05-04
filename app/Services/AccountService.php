@@ -28,7 +28,7 @@ class AccountService extends AbstractService
 		
 		//build account_name
 		$middlename = $data['middlename'] ?? null;
-		$mi = $middlename[0] . '.';
+		$mi = $middlename ? "{$middlename[0]}." : '';
 		$suffix = $data['suffix'] ?? null;
 		$data['account_name'] = "{$data['firstname']} {$mi} {$data['lastname']} {$suffix}";
 		

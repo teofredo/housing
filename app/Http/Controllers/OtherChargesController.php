@@ -18,11 +18,6 @@ class OtherChargesController extends Controller
     protected $transformer = OtherChargeTransformer::class;
     protected $validator = OtherChargeValidator::class;
 
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
-
     public function postOverride(
     	Request $request,
     	OtherChargeValidator $validator,
