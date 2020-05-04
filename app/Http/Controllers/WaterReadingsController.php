@@ -29,8 +29,10 @@ class WaterReadingsController extends Controller
     ) {
     	try {
     		$data = $request->all();
-    		
-    		$validator->validate($data);
+
+    		$validator
+                ->setConstraints(['account_id' => $request->account_id ?? null])
+                ->validate($data);
     		
     		$resource = $readingService->addWaterReading($data);
             $resource = $this->fractal->item($resource, $this->transformer)->get();
