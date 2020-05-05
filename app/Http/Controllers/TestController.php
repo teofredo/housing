@@ -16,6 +16,9 @@ class TestController extends Controller
 {
     public function test()
     {
+        $dueDate = getDueDate();
+        dd($dueDate);
+
         $result = \App\Models\Householder::find(1)->with('account')->get()->toJson();
         echo $result;
         die;

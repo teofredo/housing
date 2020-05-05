@@ -18,7 +18,7 @@ class ConfigSeeder extends Seeder
         DB::table('config')->insert([
         	[
         		'key' => 'payment-due', 
-        		'value' => 'END-OF-MONTH',
+        		'value' => 'END_OF_MONTH',
         		'comment' => 'last day of the month'
         	],
 

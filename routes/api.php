@@ -99,6 +99,6 @@ Route::group([
 
 	$r->prefix('config')->group(function($r){
 		$r->get('/{id?}', 'ConfigController@index');
-		$r->post('/', 'ConfigController@post');
+		$r->post('/', 'ConfigController@postOverride');
 	});
 });
