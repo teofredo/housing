@@ -21,7 +21,7 @@ function vd($data)
 function getNextPaymentDueDate()
 {
 	$dueDate = dbConfig('due-date');
-	if($dueDate && $dueDate->value) {
+	if($dueDate && !empty($dueDate->value)) {
 		$dueDate = Carbon::parse($dueDate->value);
 		if($dueDate->isValid()) {
 			return $dueDate;

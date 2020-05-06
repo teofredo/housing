@@ -19,7 +19,10 @@ use App\Traits\ApiQueryBuilder;
 
 class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, ApiQueryBuilder;
+    use AuthorizesRequests, 
+        DispatchesJobs, 
+        ValidatesRequests, 
+        ApiQueryBuilder;
 
     protected $fractal;
     
@@ -70,6 +73,12 @@ class Controller extends BaseController
 
         	$includes = $request->get('_includes');
 
+            // if request is calling special function
+            if($_function = $request->get('_function')) {
+                $_function = '_get' . $_function;
+                return $this->$_function($id, $request);
+            }
+
     		if(!$id) {
                 $resource = $this->buildQuery($request);
                 if(!$resource) {
@@ -99,6 +108,12 @@ class Controller extends BaseController
     public function post(Request $request)
     {
         try {
+            // if request is calling special function
+            if($_function = $request->get('_function')) {
+                $_function = '_post' . $_function;
+                return $this->$_function($id, $request);
+            }
+
             $data = $request->all();
             
             $validator = $this->validator ?? null;

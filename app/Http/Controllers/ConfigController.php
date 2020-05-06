@@ -36,4 +36,13 @@ class ConfigController extends Controller
 
     	return $errorResponse->toJson();
     }
+
+    public function _getDueDate($id=null, Request $request)
+    {
+        $dueDate = getDueDate()->format('Y-m-d');
+
+        return response()->json([
+            'data' => ['due_date' => $dueDate]
+        ]);
+    }
 }

@@ -31,10 +31,10 @@ class ErrorResponse
 			'line' => $this->exception->getLine()
 		];
 		
-		// sql exception
-		// if($this->exception instanceof \Illuminate\Database\QueryException) {
-		// 	//
-		// }
+		//auth exception
+		if($this->exception instanceof \Illuminate\Auth\AuthenticationException) {
+			$this->format['code'] = 401;
+		}
 	}
 	
 	/**
