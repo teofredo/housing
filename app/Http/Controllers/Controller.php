@@ -16,6 +16,7 @@ use App\Services\{
 
 use Illuminate\Support\Carbon;
 use App\Traits\ApiQueryBuilder;
+use App\Exceptions\EmptyResultException;
 
 class Controller extends BaseController
 {
@@ -82,7 +83,7 @@ class Controller extends BaseController
     		if(!$id) {
                 $resource = $this->buildQuery($request);
                 if(!$resource) {
-                    throw new \Exception('resource returned an empty result');
+                    throw new EmptyResultException('resource returned an empty result');
                 }
 
                 if($resource instanceof \Illuminate\Database\Eloquent\Collection) {

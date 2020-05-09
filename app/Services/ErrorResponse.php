@@ -3,6 +3,9 @@ namespace App\Services;
 
 use Illuminate\Support\Str;
 use Exception;
+use App\Exceptions\{
+	EmptyResultException
+};
 
 class ErrorResponse
 {
@@ -34,6 +37,10 @@ class ErrorResponse
 		//auth exception
 		if($this->exception instanceof \Illuminate\Auth\AuthenticationException) {
 			$this->format['code'] = 401;
+		}
+
+		if($this->exception instanceof EmptyResultException) {
+			$this->format['code'] = 'EMPTY_RESULT';
 		}
 	}
 	
