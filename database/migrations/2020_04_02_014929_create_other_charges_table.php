@@ -20,6 +20,10 @@ class CreateOtherChargesTable extends Migration
             $table->string('description');
             $table->decimal('amount');
             $table->date('due_date');
+            $table->mediumText('data')
+                ->nullable()
+                ->default(null);
+                
             $table->timestamps();
             $table->softDeletes();
         });

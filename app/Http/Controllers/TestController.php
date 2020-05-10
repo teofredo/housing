@@ -16,8 +16,13 @@ class TestController extends Controller
 {
     public function test()
     {
-        $dueDate = getDueDate();
-        dd($dueDate);
+        $account = AccountService::ins()->find(1);
+        $result = AccountService::ins()
+            ->setAccount($account)
+            ->setDueDate(Carbon::parse('2020-04-30'))
+            ->otherCharges();
+
+        dd($result);
 
         $result = \App\Models\Householder::find(1)->with('account')->get()->toJson();
         echo $result;

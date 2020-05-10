@@ -18,13 +18,10 @@ function vd($data)
 	die;
 }
 
-function getNextPaymentDueDate()
+function getNextDueDate(Carbon $date)
 {
-	if ($dueDate = dbConfig('due-date')) {
-		$dueDate = Carbon::parse($dueDate);
-		if ($dueDate->isValid()) {
-			return $dueDate;
-		}
+	if (!$date->isValid()) {
+		throw new \Exception('the date is invalid');
 	}
 
 	$dueDate = dbConfig('payment-due');
@@ -34,31 +31,25 @@ function getNextPaymentDueDate()
 
 	switch($dueDate) {
 		case 'START_OF_MONTH':
-			$dueDate = Carbon::now()->startOfMonth();
+			$dueDate = $date->startOfMonth();
 			break;
 			
 		case 'END_OF_MONTH':
-			$dueDate = Carbon::now()->endOfMonth();
+			$dueDate = $date->endOfMonth();
 			break;
 
 		case 'HALF_OF_MONTH':
-			$dueDate = Carbon::now()->day(15);
+			$dueDate = $date->day(15);
 			break;
 
 		default:
-			$dueDate = Carbon::now()->day($dueDate);
+			$dueDate = $date->day($dueDate);
 			break;
 	}
 
 	if(!$dueDate->isValid()) {
 		throw new \Exception('due date is not valid');
 	}
-
-	ConfigService::ins()->add([
-		'key' => 'due-date',
-		'value' => $dueDate->copy()->format('Y-m-d'),
-		'comment' => 'override payment due date'
-	]);
 
 	return $dueDate;
 }
@@ -71,13 +62,33 @@ function dbConfig($key=null)
 
 function getDueDate()
 {
-	return getNextPaymentDueDate();
+	if ($dueDate = dbConfig('due-date')) {
+		$dueDate = Carbon::parse($dueDate);
+		if ($dueDate->isValid()) {
+			return $dueDate;
+		}
+	}
+
+	$dueDate = getNextDueDate(Carbon::now());
+
+	ConfigService::ins()->add([
+		'key' => 'due-date',
+		'value' => $dueDate->copy()->format('Y-m-d'),
+		'comment' => 'override payment due date'
+	]);
+
+	return $dueDate;
 }
 
 //internet cutoff
-function getCutoff()
+function getCutoff($date=null)
 {
 	$cutoff = dbConfig('cut-off');
+
+	if ($date && $date instanceof \Carbon\Carbon) {
+		return $date->day($cutoff);		
+	}
+
 	$dueDate = getDueDate();
 	return $dueDate->day($cutoff);
 }

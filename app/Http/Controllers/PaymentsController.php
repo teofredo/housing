@@ -51,7 +51,7 @@ class PaymentsController extends Controller
         PaymentService $paymentService
     ) {
         try {
-            $dueDate = $request->due_date ?? getNextPaymentDueDate();
+            $dueDate = $request->due_date ?? getDueDate();
 
             DB::beginTransaction();
 
