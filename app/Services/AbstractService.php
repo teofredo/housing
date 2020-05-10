@@ -56,7 +56,10 @@ abstract class AbstractService
 
 	public function get(array $where=[], array $with=[])
 	{
-		return $this->model->where($where)->with($with)->get();
+		return $this->model
+			->where($where)
+			->with($with)
+			->get();
 	}
 
 	public function first(array $where=[], array $with=[])

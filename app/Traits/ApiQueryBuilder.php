@@ -66,6 +66,30 @@ trait ApiQueryBuilder
             $readfn = 'get';
 		}
 
+		if ($gt = Arr::get($data, '_gt')) {
+			$where = $this->parseWhere($gt);
+			$this->buildWhere($model, $where, '>');
+			$readfn = 'get';
+		} 
+
+		if ($gte = Arr::get($data, '_gte')) {
+			$where = $this->parseWhere($gte);
+			$this->buildWhere($model, $where, '>=');
+			$readfn = 'get';
+		} 
+
+		if ($lt = Arr::get($data, '_lt')) {
+			$where = $this->parseWhere($lt);
+			$this->buildWhere($model, $where, '<');
+			$readfn = 'get';
+		} 
+
+		if ($lte = Arr::get($data, '_lte')) {
+			$where = $this->parseWhere($lte);
+			$this->buildWhere($model, $where, '<=');
+			$readfn = 'get';
+		}
+
 		if(isset($data['_find'])) {
 			$where = $this->parseWhere($data['_find']);
 			$model = $model->where($where);
@@ -84,5 +108,12 @@ trait ApiQueryBuilder
 		}
 
 		return $model->$readfn();
+	}
+
+	private function buildWhere(&$model, $where, $condition)
+	{
+		foreach($where as $key => $value) {
+			$model = $model->where($key, $condition, $value);
+		}
 	}
 }

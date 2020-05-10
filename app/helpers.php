@@ -20,20 +20,18 @@ function vd($data)
 
 function getNextPaymentDueDate()
 {
-	$dueDate = dbConfig('due-date');
-	if($dueDate && !empty($dueDate->value)) {
-		$dueDate = Carbon::parse($dueDate->value);
-		if($dueDate->isValid()) {
+	if ($dueDate = dbConfig('due-date')) {
+		$dueDate = Carbon::parse($dueDate);
+		if ($dueDate->isValid()) {
 			return $dueDate;
 		}
 	}
 
 	$dueDate = dbConfig('payment-due');
-	if(!$dueDate) {
+	if (!$dueDate) {
 		throw new \Exception('payment-due must be defined in config');
 	}
 
-	$dueDate = $dueDate->value;
 	switch($dueDate) {
 		case 'START_OF_MONTH':
 			$dueDate = Carbon::now()->startOfMonth();
@@ -67,10 +65,19 @@ function getNextPaymentDueDate()
 
 function dbConfig($key=null)
 {
-	return ConfigService::ins()->findFirst('key', $key);
+	$config = ConfigService::ins()->findFirst('key', $key);
+	return $config->value ?? null;
 }
 
 function getDueDate()
 {
 	return getNextPaymentDueDate();
+}
+
+//internet cutoff
+function getCutoff()
+{
+	$cutoff = dbConfig('cut-off');
+	$dueDate = getDueDate();
+	return $dueDate->day($cutoff);
 }

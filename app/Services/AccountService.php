@@ -84,4 +84,48 @@ class AccountService extends AbstractService
 
 		return $account;
 	}
+
+	public function getAccountSummary()
+	{
+
+	}
+
+	public function setAccount($account)
+	{
+		$this->account = $account;
+	}
+
+	public function setDueDate(Carbon $dueDate)
+	{
+		$this->dueDate = $dueDate;
+	}
+
+	public function waterBill()
+	{
+		return WaterReadingService::ins()->first([
+			'account_id' => $this->account->account_id,
+			'due_date' => $this->dueDate
+		]);
+	}
+
+	public function internetBill
+	{
+		$internet = InternetSubscriptionService::ins()
+			->first([
+				'account_id', $this->account->account_id
+			]);
+
+		if (!$internet) {
+			return $internet;
+		}
+
+		$installedAt = Carbon::parse($internet->installed_at);
+		$cutoff = getCutoff();
+		$proRated = dbConfig('pro-rated');
+
+		$n = $installedAt->diffInDays($cutoff);
+		if ($n < $proRated) {
+			
+		}
+	}
 }
