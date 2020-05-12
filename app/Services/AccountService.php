@@ -235,12 +235,22 @@ class AccountService extends AbstractService
 			return;
 		}
 
-		if($lastPayment->current_balance > 0) {
-			$percent = dbConfig('penalty-non-payment');
-
+		$percent = dbConfig('penalty-non-payment');
+		
+		if($lastPayment->current_balance > 0
+			&& $lastPayment->dueDate->lt($this->dueDate)) {
+			return $lastPayment->current_balance * ($percent / 100); 
 		}
 
-		$percent = dbConfig('penalty-non-payment');
+		return 0;
+	}
 
+	public function adjustments()
+	{
+		return AdjustmentService::ins()
+			->get([
+				'account_id' => $this->account->account_id,
+				'due_date' => $this->dueDate
+			]);
 	}
 }
