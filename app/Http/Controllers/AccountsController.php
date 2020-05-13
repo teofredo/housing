@@ -51,4 +51,22 @@ class AccountsController extends Controller
     	
     	return $errorResponse->toJson();
     }
+
+    public function _getAccountSummary($id, Request $request)
+    {
+        try {
+            
+
+            // $summary = AccountService::ins()->getAccountSummary($id);
+
+            
+
+        } catch(\Exception $e) {}
+
+        DB::rollBack();
+
+        $errorResponse = new ErrorResponse($e);
+
+        return $errorResponse->toJson();
+    }
 }

@@ -81,7 +81,9 @@ class Controller extends BaseController
             }
 
     		if(!$id) {
+                //api query builder
                 $resource = $this->buildQuery($request);
+
                 if(!$resource) {
                     throw new EmptyResultException('resource returned an empty result');
                 }
@@ -112,7 +114,7 @@ class Controller extends BaseController
             // if request is calling special function
             if($_function = $request->get('_function')) {
                 $_function = '_post' . $_function;
-                return $this->$_function($id, $request);
+                return $this->$_function($request);
             }
 
             $data = $request->all();

@@ -18,6 +18,13 @@ function vd($data)
 	die;
 }
 
+/*function vd(...$args)
+{
+	// $args = func_get_args();
+    call_user_func_array('dump', $args);
+    die;
+}*/
+
 function getNextDueDate(Carbon $date)
 {
 	if (!$date->isValid()) {
