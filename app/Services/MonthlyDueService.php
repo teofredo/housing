@@ -27,27 +27,25 @@ class MonthlyDueService extends AbstractService
 		return MonthlyDue::class;
 	}
 
-	public function generateMonthDue()
+	public function generateMonthDue($dueDate=null)
 	{
-		$this->dueDate = getDueDate();
+		$this->dueDate = $dueDate instanceof Carbon ? $dueDate : getDueDate();
 
 		AccountService::ins()
-		->findBy('status', 'active')
-		->each(function($account) {
-			$summary = $this->summarize($account);
+			->findBy('status', 'active')
+			->each(function($account) {
+				$summary = $this->summarize($account);
 
-			foreach($summary as $key => $value) {
-				$fn = 'save' . Str::studly($key);
-				
-				if (method_exists($this, $fn) 
-					&& is_callable([$this, $fn])) {
+				foreach($summary as $key => $value) {
+					$fn = 'save' . Str::studly($key);
+					
+					if (method_exists($this, $fn) 
+						&& is_callable([$this, $fn])) {
 
-					$this->$fn($value);
+						$this->$fn($value);
+					}
 				}
-			}
-
-			dd($summary);
-		});
+			});
 	}
 
 	private function saveWater($model)

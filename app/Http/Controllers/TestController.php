@@ -16,7 +16,8 @@ class TestController extends Controller
 {
     public function test()
     {
-        $result = MonthlyDueService::ins()->generateMonthDue();
+        $result = PaymentService::ins()->initPayments();
+        // $result = MonthlyDueService::ins()->generateMonthDue();
         // $account = AccountService::ins()->find(1);
         // $result = MonthlyDueService::ins()->summarize($account);
         dd($result);

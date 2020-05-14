@@ -71,16 +71,7 @@ class GenerateMonthDues extends Command
 
             DB::beginTransaction();
 
-            $monthDueService
-                ->checkGeneratorLock()
-                ->setDueDate($dueDate)
-                ->generateWaterBill()
-                ->generateInternetFee()
-                ->generateOtherCharges()
-                ->generatePreviousBalance()
-                ->generatePenaltyForNonPayment()
-                ->generateAdjustments();
-
+            $monthDueService->generateMonthDue($dueDate);
             $paymentService->initPayments($dueDate);
 
             DB::commit();

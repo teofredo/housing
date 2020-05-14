@@ -25,7 +25,7 @@ class ConfigSeeder extends Seeder
             [
                 'key' => 'due-date',
                 'value' => null,
-                'comment' => 'override payment due date'
+                'comment' => 'current due date'
             ],
 
         	[
