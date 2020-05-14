@@ -7,7 +7,6 @@ use App\Models\{
 };
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 
 class AccountService extends AbstractService
 {
@@ -84,34 +83,5 @@ class AccountService extends AbstractService
 		//
 
 		return $account;
-	}
-
-	public function getAccountSummary($accountId)
-	{
-		$account = Account::findOrFail($accountId);
-
-		$summary = new AccountSummary($account);
-
-		$data = [];
-		try {
-			DB::beginTransaction();
-
-			$data = [
-				'water' => $summary->water_bill,
-				'internet' => $summary->internet_bill,
-				'other_charges' => $summary->other_charges,
-				'prev_balance' => $summary->prev_balance,
-				'penalty' => $summary->penalty,
-				'adjustments' => $summary->adjustments
-			];
-
-			DB::commit();		
-		} catch(\Exception $e) {
-			DB::rollBack();
-
-			$data = [];	
-		}
-
-		return $data;
 	}
 }

@@ -8,27 +8,17 @@ use App\Services\{
     AccountService,
     OtherChargeService,
     PaymentService,
-    MonthlyDueService,
-    AccountSummary
+    MonthlyDueService
 };
 use Carbon\Carbon;
 
 class TestController extends Controller
 {
-    public function test(AccountSummary $summary)
+    public function test()
     {
+        $result = MonthlyDueService::ins()->generateMonthDue();
         // $account = AccountService::ins()->find(1);
-        $result = AccountService::ins()->getAccountSummary(1);
-        dd($result);
-
-        // $result = $summary->setAccount($account)
-        //     ->adjustments();
-
-        $result = AccountService::ins()
-            ->setAccount($account)
-            ->setDueDate(Carbon::parse('2020-04-30'))
-            ->adjustments();
-
+        // $result = MonthlyDueService::ins()->summarize($account);
         dd($result);
 
         $result = \App\Models\Householder::find(1)->with('account')->get()->toJson();

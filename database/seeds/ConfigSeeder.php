@@ -59,7 +59,7 @@ class ConfigSeeder extends Seeder
             ],
 
             [
-                'key' => 'penalty-non-payment',
+                'key' => 'penalty',
                 'value' => 3,
                 'comment' => '(percentage)penalty for non payment'
             ],

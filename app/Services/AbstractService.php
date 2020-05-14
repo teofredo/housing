@@ -18,7 +18,10 @@ abstract class AbstractService
 
 	public static function ins()
 	{
-		self::$instance = new static::$class;
+		if (!self::$instance instanceof static::$class) {
+			self::$instance = new static::$class;
+		}
+
 		return self::$instance;
 	}
 
@@ -88,4 +91,12 @@ abstract class AbstractService
 			->latest()
 			->first();
 	}
+
+	/*public function __get($fn)
+	{
+		$fn = 'get' . Str::studly($fn);
+		if (method_exists($this, $fn) && is_callable([$this, $fn])) {
+			return $this->$fn();
+		}
+	}*/
 }

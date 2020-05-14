@@ -1,5 +1,5 @@
 <?php
-namespace App\Services;
+namespace App\Traits;
 
 use App\Models\{
 	Account,
@@ -7,46 +7,58 @@ use App\Models\{
 };
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use App\Services\{
+	WaterReadingService,
+	OtherChargeService,
+	InternetSubscriptionService,
+	PaymentService,
+	AdjustmentService,
+	FeeService
+};
 
-class AccountSummary
+trait AccountSummary
 {
-	private $account;
+	protected $account;
 
-	private $dueDate;
+	protected $dueDate;
 
-	private $interceptor = true;
-
-	public function __construct($account = null)
+	public function summarize(Account $account)
 	{
-		$this->dueDate = getDueDate();
-		// dd($this->dueDate, $account);
-
-		if($account) {
-			$this->setAccount($account);
-		}
-	}
-
-	public function setAccount(Account $account)
-	{
-		if($account->status != 'active') {
-			throw new \Exception('invalid account');
-		}
-
 		$this->account = $account;
-		return $this;
+
+		if ($this->account->status != 'active') {
+			throw new \Exception('Invalid account');
+		}
+
+		if (!$this->dueDate instanceof Carbon) {
+			throw new \Exception('Due date is not set');
+		}
+
+		try {
+			DB::beginTransaction();
+
+			$summary = [
+				'water' => $this->getWaterBill(),
+				'internet' => $this->getInternetBill(),
+				'other_charges' => $this->getOtherCharges(),
+				'prev_balance' => $this->getPrevBalance(),
+				'penalty' => $this->getPenalty(),
+				'adjustments' => $this->getAdjustments()
+			];
+
+			DB::commit();
+
+			return $summary;
+
+		} catch(\Exception $e) {}
+
+		DB::rollBack();
+
+		throw $e;
 	}
 
-	/**
-	* dueDate override
-	* for testing purposes only
-	*/
-	public function setDueDate(Carbon $dueDate)
-	{
-		$this->dueDate = $dueDate;
-		return $this;
-	}
-
-	public function getWaterBill()
+	protected function getWaterBill()
 	{
 		return WaterReadingService::ins()->first([
 			'account_id' => $this->account->account_id,
@@ -54,7 +66,7 @@ class AccountSummary
 		]);
 	}
 
-	public function getInternetBill()
+	protected function getInternetBill()
 	{
 		$internet = InternetSubscriptionService::ins()
 			->getModel()
@@ -93,7 +105,7 @@ class AccountSummary
 
 		//if pro rated less than 15 days then include to next due date
 		if ($n < $proRated) {
-			$nextDueDate = getNextDueDate(
+			$nextDueDate = getDueByDate(
 				$this->dueDate->copy()->addMonthNoOverflow()
 			);
 
@@ -134,7 +146,7 @@ class AccountSummary
 		}
 	}
 
-	public function getOtherCharges()
+	protected function getOtherCharges()
 	{
 		//add mandatory fees/ collection
 		FeeService::ins()
@@ -158,7 +170,7 @@ class AccountSummary
 			]);
 	}
 
-	public function getPrevBalance()
+	protected function getPrevBalance()
 	{
 		return PaymentService::ins()
 			->getModel()
@@ -173,51 +185,29 @@ class AccountSummary
             ->first();
 	}
 
-	/**
-	* penalty for non payment
-	*/
-	public function getPenalty()
+	// penalty for non payment
+	protected function getPenalty()
 	{	
 		$lastPayment = $this->getPrevBalance();
 		if (!$lastPayment) {
 			return;
 		}
 
-		$percent = dbConfig('penalty-non-payment');
-		return $lastPayment->current_balance * ($percent / 100); 
+		$percent = dbConfig('penalty');
+		$penalty = $lastPayment->current_balance * ($percent / 100); 
+
+		$lastPayment->setAttribute('penalty', $penalty);
+		$lastPayment->setAttribute('percent', $percent);
+
+		return $lastPayment;
 	}
 
-	public function getAdjustments()
+	protected function getAdjustments()
 	{
 		return AdjustmentService::ins()
 			->get([
 				'account_id' => $this->account->account_id,
 				'due_date' => $this->dueDate
 			]);
-	}
-
-	public function __get($fn)
-	{
-		$fn = 'get' . Str::studly($fn);
-		if (method_exists($this, $fn)) {
-			$response = $this->$fn();
-
-			/**
-			* response interceptor
-			*/
-			if ($this->interceptor
-				&& (is_subclass_of($response, \Illuminate\Database\Eloquent\Model::class)
-				|| $response instanceof \Illuminate\Database\Eloquent\Collection)) {
-				
-				return $response->toArray();
-			}
-
-			return $response;
-		}
-	}
-
-	public function setInterceptor(bool $value)
-	{
-		$this->interceptor = $value;
 	}
 }

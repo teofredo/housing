@@ -18,14 +18,7 @@ function vd($data)
 	die;
 }
 
-/*function vd(...$args)
-{
-	// $args = func_get_args();
-    call_user_func_array('dump', $args);
-    die;
-}*/
-
-function getNextDueDate(Carbon $date)
+function getDueByDate(Carbon $date)
 {
 	if (!$date->isValid()) {
 		throw new \Exception('the date is invalid');
@@ -69,14 +62,19 @@ function dbConfig($key=null)
 
 function getDueDate()
 {
-	if ($dueDate = dbConfig('due-date')) {
-		$dueDate = Carbon::parse($dueDate);
-		if ($dueDate->isValid()) {
-			return $dueDate;
-		}
+	$dueDate = dbConfig('due-date');
+	if (!$dueDate) {
+		throw new \Exception('Due date is not set in config');
 	}
 
-	$dueDate = getNextDueDate(Carbon::now());
+	$dueDate = Carbon::parse($dueDate);
+	if (!$dueDate->isValid()) {
+		throw new \Exception('Invalid due date in config');
+	}
+
+	return $dueDate;
+
+	/*$dueDate = getDueByDate(Carbon::now());
 
 	ConfigService::ins()->add([
 		'key' => 'due-date',
@@ -84,7 +82,7 @@ function getDueDate()
 		'comment' => 'override payment due date'
 	]);
 
-	return $dueDate;
+	return $dueDate;*/
 }
 
 //internet cutoff
