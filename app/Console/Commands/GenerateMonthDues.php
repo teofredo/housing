@@ -71,6 +71,7 @@ class GenerateMonthDues extends Command
 
             DB::beginTransaction();
 
+            sleep(30);
             $monthDueService->generateMonthDue($dueDate);
             $paymentService->initPayments($dueDate);
 

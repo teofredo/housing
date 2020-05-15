@@ -17,6 +17,7 @@ use App\Services\{
 use Illuminate\Support\Carbon;
 use App\Traits\ApiQueryBuilder;
 use App\Exceptions\EmptyResultException;
+use Illuminate\Support\Str;
 
 class Controller extends BaseController
 {
@@ -76,8 +77,14 @@ class Controller extends BaseController
 
             // if request is calling special function
             if($_function = $request->get('_function')) {
-                $_function = '_get' . $_function;
-                return $this->$_function($id, $request);
+                $_function = '_get' . Str::studly($_function);
+
+                if(method_exists($this, $_function)
+                    && is_callable([$this, $_function])) {
+                    return $this->$_function($id, $request);
+                }
+
+                throw new \Exception('undefined special function ' . $_function);
             }
 
     		if(!$id) {
@@ -113,8 +120,14 @@ class Controller extends BaseController
         try {
             // if request is calling special function
             if($_function = $request->get('_function')) {
-                $_function = '_post' . $_function;
-                return $this->$_function($request);
+                $_function = '_post' . Str::studly($_function);
+                
+                if(method_exists($this, $_function)
+                    && is_callable([$this, $_function])) {
+                    return $this->$_function($request);
+                }
+
+                throw new \Exception('undefined special function ' . $_function);
             }
 
             $data = $request->all();

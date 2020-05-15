@@ -72,4 +72,13 @@ class MonthlyDuesController extends Controller
 
     	return $errorResponse->toJson();
     }
+
+    public function _getSummary($id, Request $request)
+    {
+        $dueDate = $request->get('due_date', null);
+
+        $result = MonthlyDueService::ins()->getSummary($dueDate);
+
+        return response()->json(['data' => $result]);
+    }
 }

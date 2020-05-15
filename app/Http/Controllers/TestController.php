@@ -16,7 +16,9 @@ class TestController extends Controller
 {
     public function test()
     {
-        $result = PaymentService::ins()->initPayments();
+        $result = MonthlyDueService::ins()->getSummary(Carbon::parse('2020-04-30'));
+
+        // $result = PaymentService::ins()->initPayments();
         // $result = MonthlyDueService::ins()->generateMonthDue();
         // $account = AccountService::ins()->find(1);
         // $result = MonthlyDueService::ins()->summarize($account);

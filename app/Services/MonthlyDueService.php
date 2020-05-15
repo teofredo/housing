@@ -13,6 +13,7 @@ use App\Models\{
 	InternetSubscription
 };
 use App\Traits\AccountSummary;
+use Illuminate\Support\Facades\DB;
 
 class MonthlyDueService extends AbstractService
 {
@@ -25,6 +26,30 @@ class MonthlyDueService extends AbstractService
 	public function model()
 	{
 		return MonthlyDue::class;
+	}
+
+	public function getSummary($dueDate=null)
+	{
+		$this->dueDate = $dueDate instanceof Carbon ? $dueDate : getDueDate();
+
+		return $this->model
+			->where('due_date', $this->dueDate)
+			->join('accounts', 'accounts.account_id', '=', 'monthly_dues.account_id')
+			->select(
+				'accounts.account_id as account_id', 
+				'account_no',
+				'account_name',
+				'due_date'
+			)
+			->addSelect(['amount_due' => $this->model
+				->where('code', '<>', 'adjustments')
+				->selectRaw('sum(amount_due) - (select sum(amount_due) from monthly_dues where code = ? group by account_id, due_date)', ['adjustments'])
+				->groupBy('account_id')
+				->groupBy('due_date')
+			])
+			->groupBy('account_id')
+			->groupBy('due_date')
+			->get();
 	}
 
 	public function generateMonthDue($dueDate=null)
