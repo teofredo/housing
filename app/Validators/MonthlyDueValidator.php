@@ -4,10 +4,17 @@ namespace App\Validators;
 class MonthlyDueValidator extends BaseValidator
 {
 	protected $rules = [
-		'due_date' => 'sometimes|date_format:Y-m-d'
+		// 
 	];
 	
 	protected $messages = [
 		//
 	];
+
+	protected function getRules()
+	{
+		return array_merge($this->rules, [
+			'due_date' => 'sometimes|date_format:' . config('fairchild.formats.due_date')
+		]);
+	}
 }

@@ -30,10 +30,10 @@ class MonthlyDuesController extends Controller
 
     	try {
     		$request->validate([
-    			'due_date' => 'required|date_format:Y-m-d'
+    			'due_date' => 'required|date_format:m/Y'
     		]);
 
-    		$dueDate = Carbon::parse($request->due_date);
+    		$dueDate = $request->due_date ?? null;
 
     		/**
     		* check if already processing or done 

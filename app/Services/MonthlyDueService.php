@@ -21,6 +21,8 @@ class MonthlyDueService extends AbstractService
 
 	protected static $class = __CLASS__;
 
+	protected $account;
+
 	protected $dueDate;
 
 	public function model()
@@ -28,12 +30,10 @@ class MonthlyDueService extends AbstractService
 		return MonthlyDue::class;
 	}
 
-	public function getSummary($dueDate=null)
+	public function getSummary($dueDate)
 	{
-		$this->dueDate = $dueDate instanceof Carbon ? $dueDate : getDueDate();
-
 		return $this->model
-			->where('due_date', $this->dueDate)
+			->where('due_date', $dueDate)
 			->join('accounts', 'accounts.account_id', '=', 'monthly_dues.account_id')
 			->select(
 				'accounts.account_id as account_id', 
@@ -52,9 +52,9 @@ class MonthlyDueService extends AbstractService
 			->get();
 	}
 
-	public function generateMonthDue($dueDate=null)
+	public function generateMonthDue($dueDate)
 	{
-		$this->dueDate = $dueDate instanceof Carbon ? $dueDate : getDueDate();
+		$this->dueDate = $dueDate;
 
 		AccountService::ins()
 			->findBy('status', 'active')

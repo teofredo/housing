@@ -10,11 +10,17 @@ class PaymentValidator extends BaseValidator
 		'prev_balance' => 'required|numeric|min:0',
 		'amount_received' => 'required|numeric|min:0',
 		'current_balance' => 'sometimes|numeric|min:0',
-		'due_date' => 'required|date_format:Y-m-d',
 		'paid_at' => 'required|date_format:Y-m-d'
 	];
 	
 	protected $messages = [
 		// 
 	];
+
+	protected function getRules()
+	{
+		return array_merge($this->rules, [
+			'due_date' => 'required|date_format:' . config('fairchild.formats.due_date')
+		]);
+	}
 }

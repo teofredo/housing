@@ -39,7 +39,7 @@ class ConfigController extends Controller
 
     public function _getDueDate($id=null, Request $request)
     {
-        $dueDate = getDueDate()->format('Y-m-d');
+        $dueDate = getDueDate();
 
         return response()->json([
             'data' => ['due_date' => $dueDate]

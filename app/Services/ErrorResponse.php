@@ -42,6 +42,10 @@ class ErrorResponse
 		if($this->exception instanceof EmptyResultException) {
 			$this->format['code'] = 'EMPTY_RESULT';
 		}
+
+		if ($this->exception instanceof \Illuminate\Database\QueryException) {
+			// $this->format['message'] = 'SQL Error';
+		}
 	}
 	
 	/**

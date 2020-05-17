@@ -29,5 +29,9 @@ return [
 
 	'queue_names' => [
 		'commands' // for artisan console
+	],
+
+	'formats' => [
+		'due_date' => 'm/Y'
 	]
 ];	

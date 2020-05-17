@@ -3,6 +3,7 @@ namespace App\Validators;
 
 use Validator;
 use App\Exceptions\ValidationException;
+use Illuminate\Support\Str;
 
 abstract class BaseValidator
 {
@@ -16,12 +17,8 @@ abstract class BaseValidator
 			$this->overrideRules();
 		}
 		
-		// vd($this->constraints);
-		
 		$rules = $rules ?: $this->rules;
 		$messages = $messages ?: $this->messages;
-		
-		// vd($rules);
 		
 		$this->validator = Validator::make($data, $rules, $messages);
 		
@@ -36,5 +33,13 @@ abstract class BaseValidator
 	{
 		$this->constraints = $constraints;
 		return $this;
+	}
+
+	public function __get($fn)
+	{
+		$fn = 'get' . Str::studly($fn);
+		if (method_exists($this, $fn) && is_callable([$this, $fn])) {
+			return $this->$fn();
+		}
 	}
 }

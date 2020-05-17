@@ -6,8 +6,7 @@ class WaterReadingValidator extends BaseValidator
 	protected $rules = [
 		'account_id' => 'required|integer',
 		'meter_no' => 'required|string',
-		'curr_read' => 'required|numeric',
-		'due_date' => 'required|date_format:Y-m-d'
+		'curr_read' => 'required|numeric'
 	];
 	
 	protected $messages = [
@@ -16,6 +15,10 @@ class WaterReadingValidator extends BaseValidator
 
 	protected function overrideRules()
 	{
-		$this->rules['due_date'] = "required|string|unique:water_readings,due_date,NULL,id,account_id,{$this->constraints['account_id']}";
+		$this->rules['due_date'] = [
+			'required',
+			'date_format:' . config('fairchild.formats.due_date'),
+			"unique:water_readings,due_date,NULL,id,account_id,{$this->constraints['account_id']}"
+		];
 	}
 }

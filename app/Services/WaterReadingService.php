@@ -28,24 +28,19 @@ class WaterReadingService extends AbstractService
 
 		$data['prev_read'] = $reading->curr_read ?? 0;
 		$data['prev_read_date'] = $reading->curr_read_date ?? null;
-
-		//get due date
 		$data['due_date'] = $data['due_date'] ?? getDueDate();
-		if(!$data['due_date'] instanceof Carbon) {
-			$data['due_date'] = Carbon::parse($data['due_date']);
-		}
 
 		//get water rate
 		$consumption = $data['curr_read'] - $data['prev_read'];
 		$waterRate = $this->getWaterRateByConsumption($consumption);
-		$data['rate_applied'] = $waterRate->rate;
-		$data['is_minimum'] = $waterRate->is_minimum;
+		$data['rate_applied'] = $waterRate->rate ?? 0;
+		$data['is_minimum'] = $waterRate->is_minimum ?? 0;
 
 		// current reading date
 		$data['curr_read_date'] = Carbon::now();
 
 		$reading = $this->model->updateOrCreate(
-			[ 'account_id' => $data['account_id'], 'due_date' => $data['due_date']->format('Y-m-d') ],
+			[ 'account_id' => $data['account_id'], 'due_date' => $data['due_date'] ],
 			Arr::except($data, ['account_id', 'due_date'])
 		);
 		if(!$reading) {
@@ -64,7 +59,7 @@ class WaterReadingService extends AbstractService
 			->first();
 
 		if(!$waterRate) {
-			throw new \Exception('water rate not set');
+			return null;
 		}
 
 		if($waterRate->min_fee > 0) {

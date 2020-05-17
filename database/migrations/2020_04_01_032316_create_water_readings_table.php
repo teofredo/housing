@@ -24,7 +24,7 @@ class CreateWaterReadingsTable extends Migration
                 ->default(null);
 
             $table->dateTime('curr_read_date');
-            $table->date('due_date');
+            $table->string('due_date', 10);
             $table->decimal('rate_applied');
             $table->tinyInteger('is_minimum')->default(0);
             $table->string('read_by', 30)

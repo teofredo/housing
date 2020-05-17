@@ -63,17 +63,14 @@ class GenerateMonthDues extends Command
                 return;
             }
 
-            $dueDate = Carbon::parse($process->due_date);
-
             $process->status = 'processing';
             $process->save();
             $this->info('processing');
 
             DB::beginTransaction();
 
-            sleep(30);
-            $monthDueService->generateMonthDue($dueDate);
-            $paymentService->initPayments($dueDate);
+            $monthDueService->generateMonthDue($process->due_date);
+            $paymentService->initPayments($process->due_date);
 
             DB::commit();
 

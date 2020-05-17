@@ -24,7 +24,7 @@ class CreatePaymentsTable extends Migration
             $table->decimal('amount_received')->default(0);
             $table->decimal('amount_paid')->default(0);
             $table->decimal('current_balance')->default(0);
-            $table->date('due_date');
+            $table->string('due_date', 10);
             $table->tinyInteger('other_payment')
                 ->default(0)
                 ->comment('not included in month due, recording only');

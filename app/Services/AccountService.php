@@ -41,11 +41,11 @@ class AccountService extends AbstractService
 		}
 		
 		//build account_no and save
-		$year = Carbon::now()->format('Y');
-		$parentId = substr(sprintf('%04s', $account->parent_id), -4);
+		$year = Carbon::now()->format('y');
+		$hasParent = $account->parent_id ? 1 : 0;
 		$accountId = substr(sprintf('%04s', $account->account_id), -4);
-		$hhti = strtoupper($data['householder_type'][0]);	//householder_type initial
-		$account->account_no = "{$parentId}{$year}{$accountId}{$hhti}";
+		$hhti = strtolower($data['householder_type']) == 'owner' ? '0' : 'T';
+		$account->account_no = "{$hasParent}{$year}{$accountId}{$hhti}";
 		$account->save();
 		
 		/**

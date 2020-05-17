@@ -16,7 +16,8 @@ class TestController extends Controller
 {
     public function test()
     {
-        $result = MonthlyDueService::ins()->getSummary(Carbon::parse('2020-04-30'));
+        $result =   bcrypt('zichri');
+        // $result = MonthlyDueService::ins()->getSummary(Carbon::parse('2020-04-30'));
 
         // $result = PaymentService::ins()->initPayments();
         // $result = MonthlyDueService::ins()->generateMonthDue();

@@ -19,21 +19,10 @@ use App\Services\{
 
 trait AccountSummary
 {
-	protected $account;
-
-	protected $dueDate;
-
-	public function summarize(Account $account)
+	public function summarize(Account $account, $dueDate=null)
 	{
 		$this->account = $account;
-
-		if ($this->account->status != 'active') {
-			throw new \Exception('Invalid account');
-		}
-
-		if (!$this->dueDate instanceof Carbon) {
-			throw new \Exception('Due date is not set');
-		}
+		$this->dueDate = $dueDate ?? $this->dueDate;
 
 		try {
 			DB::beginTransaction();
@@ -105,15 +94,13 @@ trait AccountSummary
 
 		//if pro rated less than 15 days then include to next due date
 		if ($n < $proRated) {
-			$nextDueDate = getDueByDate(
-				$this->dueDate->copy()->addMonthNoOverflow()
-			);
+			$nextDueDate = nextDueDate($this->dueDate);
 
 			$data = [
 				'plan' => $internet->plan->name,
 				'monthly' => $internet->plan->monthly,
-				'installed_at' => $installedAt->format('m/d/Y'),
-				'cutoff' => $cutoff->format('m/d/Y'),
+				'installed_at' => $installedAt->format('Y-m-d'),
+				'cutoff' => $cutoff->format('Y-m-d'),
 				'n_days' => $n,
 				'days_in_month' => $ndays,
 				'per_day' => round($perDay, 2),
@@ -123,7 +110,7 @@ trait AccountSummary
 			return OtherCharge::updateOrCreate([
 				'account_id' => $this->account->account_id,
 				'fee_id' => $fee->fee_id,
-				'due_date' => $nextDueDate->format('Y-m-d')
+				'due_date' => $nextDueDate
 			], [
 				'description' => "internet pro-rated",
 				'amount' => $proRatedAmount,
@@ -155,7 +142,7 @@ trait AccountSummary
 				OtherCharge::updateOrCreate([
 					'account_id' => $this->account->account_id,
 					'fee_id' => $fee->fee_id,
-					'due_date' => $this->dueDate->format('Y-m-d')
+					'due_date' => $this->dueDate
 				], [
 					'amount' => $fee->fee,
 					'description' => $fee->name
@@ -178,7 +165,7 @@ trait AccountSummary
             	'account_id' => $this->account->account_id,
             	'other_payment' => 0
             ])
-            ->where('due_date', '<', $this->dueDate)
+            ->where('due_date', '<', myCarbonize($this->dueDate)->endOfMonth())
             ->where('current_balance', '>', 0)
             ->orderBy('due_date', 'desc')
             ->orderBy('created_at', 'desc')

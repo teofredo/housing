@@ -31,10 +31,8 @@ class PaymentService extends AbstractService
 	}
 
 
-	public function initPayments($dueDate=null)
+	public function initPayments($dueDate)
 	{
-		$dueDate = $dueDate instanceof Carbon ? $dueDate : getDueDate();
-
 		$monthDue = MonthlyDueService::ins()->findFirst('due_date', $dueDate);
 		if(!$monthDue) {
 			throw new \Exception('month due not yet generated');

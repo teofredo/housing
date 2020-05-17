@@ -25,7 +25,7 @@ class ConfigSeeder extends Seeder
             [
                 'key' => 'due-date',
                 'value' => null,
-                'comment' => 'current due date'
+                'comment' => 'mm/yyyy current due date'
             ],
 
         	[
@@ -61,13 +61,13 @@ class ConfigSeeder extends Seeder
             [
                 'key' => 'penalty',
                 'value' => 3,
-                'comment' => '(percentage)penalty for non payment'
+                'comment' => '% penalty for non payment'
             ],
 
             [
                 'key' => 'penalty-late',
                 'value' => 3,
-                'comment' => '(percentage)penalty for late'
+                'comment' => '% penalty for late'
             ],
 
             [

@@ -4,6 +4,8 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Services\ConfigService;
 
+define('DUE_DATE_FORMAT', 'm/Y');
+
 function pr(array $data)
 {
 	echo '<pre>';
@@ -18,40 +20,16 @@ function vd($data)
 	die;
 }
 
-function getDueByDate(Carbon $date)
+function nextDueDate(Carbon $date=null, $carbonize=false)
 {
-	if (!$date->isValid()) {
-		throw new \Exception('the date is invalid');
+	if ($date && $date instanceof Carbon) {
+		$nextDueDate = $date->copy()->addMonthNoOverflow();
+	} else {
+		//get carbonized due date and add month
+		$nextDueDate = getDueDate(true)->addMonthNoOverflow();
 	}
 
-	$dueDate = dbConfig('payment-due');
-	if (!$dueDate) {
-		throw new \Exception('payment-due must be defined in config');
-	}
-
-	switch($dueDate) {
-		case 'START_OF_MONTH':
-			$dueDate = $date->startOfMonth();
-			break;
-			
-		case 'END_OF_MONTH':
-			$dueDate = $date->endOfMonth();
-			break;
-
-		case 'HALF_OF_MONTH':
-			$dueDate = $date->day(15);
-			break;
-
-		default:
-			$dueDate = $date->day($dueDate);
-			break;
-	}
-
-	if(!$dueDate->isValid()) {
-		throw new \Exception('due date is not valid');
-	}
-
-	return $dueDate;
+	return $carbonize ? $nextDueDate : $nextDueDate->format(DUE_DATE_FORMAT);
 }
 
 function dbConfig($key=null)
@@ -60,29 +38,23 @@ function dbConfig($key=null)
 	return $config->value ?? null;
 }
 
-function getDueDate()
+function getDueDate($carbonize=false)
 {
 	$dueDate = dbConfig('due-date');
 	if (!$dueDate) {
-		throw new \Exception('Due date is not set in config');
+		throw new \Exception('current due date not set in config');	
 	}
 
-	$dueDate = Carbon::parse($dueDate);
-	if (!$dueDate->isValid()) {
-		throw new \Exception('Invalid due date in config');
-	}
+	return $carbonize ? myCarbonize($dueDate) : $dueDate;
+}
 
-	return $dueDate;
-
-	/*$dueDate = getDueByDate(Carbon::now());
-
-	ConfigService::ins()->add([
-		'key' => 'due-date',
-		'value' => $dueDate->copy()->format('Y-m-d'),
-		'comment' => 'override payment due date'
-	]);
-
-	return $dueDate;*/
+/**
+* myCarbonize > month-year-carbonize
+*/
+function myCarbonize($myformatted, $delimiter='/')
+{
+	list($month, $year) = explode($delimiter, $myformatted);
+	return Carbon::createFromDate($year, $month, 1);
 }
 
 //internet cutoff
