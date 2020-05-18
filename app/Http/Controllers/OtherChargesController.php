@@ -18,11 +18,6 @@ class OtherChargesController extends Controller
     protected $transformer = OtherChargeTransformer::class;
     protected $validator = OtherChargeValidator::class;
 
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
-
     public function postOverride(
     	Request $request,
     	OtherChargeValidator $validator,
@@ -45,7 +40,7 @@ class OtherChargesController extends Controller
 
     	} catch(\Exception $e) {}
 
-    	$errorResponse = new ErrorResponse($e);
+    	$errorResponse = new ErrorResponse($e, $request);
 
     	return $errorResponse->toJson();
     }

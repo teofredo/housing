@@ -18,9 +18,15 @@ class ConfigSeeder extends Seeder
         DB::table('config')->insert([
         	[
         		'key' => 'payment-due', 
-        		'value' => 'END-OF-MONTH',
+        		'value' => 'END_OF_MONTH',
         		'comment' => 'last day of the month'
         	],
+
+            [
+                'key' => 'due-date',
+                'value' => null,
+                'comment' => 'mm/yyyy current due date'
+            ],
 
         	[
         		'key' => 'cut-off',
@@ -53,15 +59,21 @@ class ConfigSeeder extends Seeder
             ],
 
             [
-                'key' => 'penalty-non-payment',
+                'key' => 'penalty',
                 'value' => 3,
-                'comment' => '(percentage)penalty for non payment'
+                'comment' => '% penalty for non payment'
             ],
 
             [
                 'key' => 'penalty-late',
                 'value' => 3,
-                'comment' => '(percentage)penalty for late'
+                'comment' => '% penalty for late'
+            ],
+
+            [
+                'key' => 'open-water-reading',
+                'value' => 0,
+                'comment' => 'open/close water reading'
             ]
         ]);
     }

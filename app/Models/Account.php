@@ -33,7 +33,9 @@ class Account extends Authenticatable
 
     public function setAccountNameAttribute($value)
     {
-    	$this->attributes['account_name'] = strtoupper($value);
+    	$value = strtoupper(trim($value));
+        $value = preg_replace('/\s+/', ' ', $value);
+        $this->attributes['account_name'] = $value;
     }
     
     public function getTableColumns()

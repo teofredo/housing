@@ -2,13 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Config extends Model
+class Config extends Base
 {
 	protected $table = 'config';
-
-	public $timestamps = true;
-
-    protected $fillable = ['key', 'value'];
 }

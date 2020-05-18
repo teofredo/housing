@@ -3,24 +3,34 @@ namespace App\Services;
 
 use Illuminate\Support\Str;
 use Exception;
+use App\Exceptions\{
+	EmptyResultException
+};
+use Illuminate\Http\Request;
 
 class ErrorResponse
 {
 	private $exception;
 	
 	private $format = [];
+
+	private $trace = null;
+
+	private $request;
 	
-	public function __construct(Exception $exception)
+	public function __construct(Exception $exception, Request $request=null)
 	{
 		$this->exception = $exception ?? null;
+
+		$this->request = $request;
 		
-		$this->format();
+		$this->format()->log();
 	}
 	
 	private function format()
 	{
 		if(!$this->exception) {
-			return;
+			return $this;
 		}
 		
 		$this->format = [
@@ -30,11 +40,40 @@ class ErrorResponse
 			'file' => $this->exception->getFile(),
 			'line' => $this->exception->getLine()
 		];
+
+		// used for logging only
+		$this->trace = $this->exception->getTrace();
 		
-		// sql exception
-		// if($this->exception instanceof \Illuminate\Database\QueryException) {
-		// 	//
-		// }
+		//auth exception
+		if($this->exception instanceof \Illuminate\Auth\AuthenticationException) {
+			$this->format['code'] = 401;
+		}
+
+		if($this->exception instanceof EmptyResultException) {
+			$this->format['code'] = 'EMPTY_RESULT';
+		}
+
+		if ($this->exception instanceof \Illuminate\Database\QueryException) {
+			// $this->format['message'] = 'SQL Error';
+		}
+
+		return $this;
+	}
+
+	/**
+	* log error to db
+	* use errorLogger service
+	* params > error, trace, request
+	*/
+	private function log()
+	{
+		$request = $this->request ? $this->request->all() : null;
+
+		ErrorLogger::ins()->log(
+			json_encode($this->format),
+			json_encode($this->trace),
+			json_encode($request)	
+		);
 	}
 	
 	/**

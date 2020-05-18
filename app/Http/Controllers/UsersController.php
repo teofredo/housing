@@ -17,11 +17,6 @@ class UsersController extends Controller
 	protected $transformer = UserTransformer::class;
 	protected $validator = UserValidator::class;
 	
-	public function index($id=null, Request $request)
-	{
-		return parent::index($id, $request);
-	}
-	
 	/**
 	* create/register admin users
 	*/
@@ -47,7 +42,7 @@ class UsersController extends Controller
             
         } catch(\Exception $e) {}
         
-        $errorResponse = new ErrorResponse($e);
+        $errorResponse = new ErrorResponse($e, $request);
         
         return $errorResponse->toJson();
     }
@@ -64,7 +59,7 @@ class UsersController extends Controller
         } 
         catch(\Exception $e) {}
         
-        $errorResponse = new ErrorResponse($e);
+        $errorResponse = new ErrorResponse($e, $request);
         
         return $errorResponse->toJson();
     }

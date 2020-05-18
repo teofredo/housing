@@ -12,9 +12,4 @@ class AdjustmentsController extends Controller
     protected $model = Adjustment::class;
     protected $transformer = AdjustmentTransformer::class;
     protected $validator = AdjustmentValidator::class;
-
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
 }

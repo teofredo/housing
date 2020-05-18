@@ -19,7 +19,11 @@ class CreateOtherChargesTable extends Migration
             $table->integer('fee_id');
             $table->string('description');
             $table->decimal('amount');
-            $table->date('due_date');
+            $table->string('due_date', 10);
+            $table->mediumText('data')
+                ->nullable()
+                ->default(null);
+                
             $table->timestamps();
             $table->softDeletes();
         });

@@ -96,4 +96,9 @@ Route::group([
 		$r->get('/{id?}', 'UsersController@index');
 		$r->post('/', 'UsersController@postOverride');
 	});
+
+	$r->prefix('config')->group(function($r){
+		$r->get('/{id?}', 'ConfigController@index');
+		$r->post('/', 'ConfigController@postOverride');
+	});
 });

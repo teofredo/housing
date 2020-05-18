@@ -3,8 +3,7 @@ namespace App\Services;
 
 use App\Models\{
 	Account,
-	Householder,
-	User
+	Householder
 };
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -28,7 +27,7 @@ class AccountService extends AbstractService
 		
 		//build account_name
 		$middlename = $data['middlename'] ?? null;
-		$mi = $middlename[0] . '.';
+		$mi = $middlename ? "{$middlename[0]}." : '';
 		$suffix = $data['suffix'] ?? null;
 		$data['account_name'] = "{$data['firstname']} {$mi} {$data['lastname']} {$suffix}";
 		
@@ -42,11 +41,11 @@ class AccountService extends AbstractService
 		}
 		
 		//build account_no and save
-		$year = Carbon::now()->format('Y');
-		$parentId = substr(sprintf('%04s', $account->parent_id), -4);
+		$year = Carbon::now()->format('y');
+		$hasParent = $account->parent_id ? 1 : 0;
 		$accountId = substr(sprintf('%04s', $account->account_id), -4);
-		$hhti = strtoupper($data['householder_type'][0]);	//householder_type initial
-		$account->account_no = "{$parentId}{$year}{$accountId}{$hhti}";
+		$hhti = strtolower($data['householder_type']) == 'owner' ? '0' : 'T';
+		$account->account_no = "{$hasParent}{$year}{$accountId}{$hhti}";
 		$account->save();
 		
 		/**
@@ -76,7 +75,8 @@ class AccountService extends AbstractService
 		//create householder house_no and water_meter_no
 		$houseNo = "{$householder->lot->block->name}{$householder->lot->name}";
 		$householder->house_no = $houseNo;
-		$householder->water_meter_no = str_rot13($houseNo);
+		// $householder->water_meter_no = str_rot13($houseNo);
+		$householder->water_meter_no = $houseNo;
 		$householder->save();
 		
 		//todo > job worker > send email verification link with reset password

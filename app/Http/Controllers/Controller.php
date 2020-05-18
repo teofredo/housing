@@ -16,10 +16,15 @@ use App\Services\{
 
 use Illuminate\Support\Carbon;
 use App\Traits\ApiQueryBuilder;
+use App\Exceptions\EmptyResultException;
+use Illuminate\Support\Str;
 
 class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, ApiQueryBuilder;
+    use AuthorizesRequests, 
+        DispatchesJobs, 
+        ValidatesRequests, 
+        ApiQueryBuilder;
 
     protected $fractal;
     
@@ -70,10 +75,24 @@ class Controller extends BaseController
 
         	$includes = $request->get('_includes');
 
+            // if request is calling special function
+            if($_function = $request->get('_function')) {
+                $_function = '_get' . Str::studly($_function);
+
+                if(method_exists($this, $_function)
+                    && is_callable([$this, $_function])) {
+                    return $this->$_function($id, $request);
+                }
+
+                throw new \Exception('undefined special function ' . $_function);
+            }
+
     		if(!$id) {
+                //api query builder
                 $resource = $this->buildQuery($request);
+
                 if(!$resource) {
-                    throw new \Exception('resource returned an empty result');
+                    throw new EmptyResultException('resource returned an empty result');
                 }
 
                 if($resource instanceof \Illuminate\Database\Eloquent\Collection) {
@@ -93,12 +112,26 @@ class Controller extends BaseController
 
         } catch(\Exception $e) {}
 
-        throw $e;
+        $errorResponse = new ErrorResponse($e, $request);
+
+        return $errorResponse->toJson();
     }
     
     public function post(Request $request)
     {
         try {
+            // if request is calling special function
+            if($_function = $request->get('_function')) {
+                $_function = '_post' . Str::studly($_function);
+                
+                if(method_exists($this, $_function)
+                    && is_callable([$this, $_function])) {
+                    return $this->$_function($request);
+                }
+
+                throw new \Exception('undefined special function ' . $_function);
+            }
+
             $data = $request->all();
             
             $validator = $this->validator ?? null;
@@ -116,7 +149,7 @@ class Controller extends BaseController
             
         } catch(\Exception $e) {}
         
-        $errorResponse = new ErrorResponse($e);
+        $errorResponse = new ErrorResponse($e, $request);
         
         return $errorResponse->toJson();   
     }

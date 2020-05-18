@@ -7,17 +7,17 @@
 
 return [
 
-	//order o generate month dues
+	//order to generate month dues
 	'month-due-codes' => [
-		'water-bill', 
-		'internet-fee', 
-		'other-charges',
-		'prev-balance',
-		'penalty-non-payment',
+		'water', 
+		'internet', 
+		'other_charges',
+		'prev_balance',
+		'penalty',
 		'adjustments',
 
 		// not applicable, only be added during actual payment
-		'penalty-late'
+		'penalty_ate'
 	],
 
 	'payment-dues' => [
@@ -29,5 +29,9 @@ return [
 
 	'queue_names' => [
 		'commands' // for artisan console
+	],
+
+	'formats' => [
+		'due_date' => 'm/Y'
 	]
 ];	

@@ -29,7 +29,7 @@ class CreateProcessTable extends Migration
                 ->nullable()
                 ->default(null);
 
-            $table->date('due_date')
+            $table->string('due_date', 10)
                 ->nullable()
                 ->default(null);
 

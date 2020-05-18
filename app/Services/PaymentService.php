@@ -18,7 +18,7 @@ class PaymentService extends AbstractService
 		$totalDue = $data['amount_due'];
 		$difference = $totalDue - $data['amount_received'];
 
-		//if sufficient amount received
+		//if sufficient amount receivedice
 		if($difference <= 0) {
 			$data['amount_paid'] = $totalDue;
 			$data['current_balance'] = 0;
@@ -31,7 +31,7 @@ class PaymentService extends AbstractService
 	}
 
 
-	public function initPayments(Carbon $dueDate)
+	public function initPayments($dueDate)
 	{
 		$monthDue = MonthlyDueService::ins()->findFirst('due_date', $dueDate);
 		if(!$monthDue) {
@@ -41,47 +41,43 @@ class PaymentService extends AbstractService
 		AccountService::ins()
 			->getModel()
 			->where('status', 'active')
-			->whereRaw('accounts.account_id NOT IN(select account_id from payments WHERE due_date = ? and other_payment=0)', [$dueDate])
+			->whereRaw('accounts.account_id NOT IN(select account_id from payments WHERE due_date = ? and other_payment = ?)', [$dueDate, 0])
 			->get()
 			->each(function($model) use($dueDate){
-				/**
-				* get monthly dues
-				*/
-				$monthDues = MonthlyDueService::ins()->get([
-					'account_id' => $model->account_id,
-					'due_date' => $dueDate
-				]);
-
 				$data = [
 					'account_id' => $model->account_id,
 					'due_date' => $dueDate,
 					'amount_due' => 0
 				];
 
-				foreach($monthDues as $monthDue) {
-					switch($monthDue->code) {
+				// get month dues
+				$monthDues = MonthlyDueService::ins()->get([
+					'account_id' => $model->account_id,
+					'due_date' => $dueDate
+				]);
+
+				$penalty = 0;
+				foreach($monthDues as $m) {
+					switch($m->code) {
 						case 'adjustments':
-							$data['amount_due'] -= $monthDue->amount_due;
-							break;
+							$data['amount_due'] -= $m->amount_due;
+							continue;
 
-						case 'water-bill':
-						case 'internet-fee':
-						case 'other-charges':
-						case 'prev-balance':
-						case 'penalty-non-payment':
-						default:
-							break;
+						case 'water':
+						case 'internet':
+						case 'other_charges':
+						case 'prev_balance':
+							$data['amount_due'] += $m->amount_due;
+							continue;
+
+						case 'penalty':
+							$penalty += $m->amount_due;
+							continue;
 					}
-
-					$data['amount_due'] += $monthDue->amount_due;
 				}
 
-				$data['current_balance'] = $data['amount_due'];
+				$data['current_balance'] = $data['amount_due'] + $penalty;
 
-				/**
-				* add to payments
-				* to be used/ updated by the cashier during payment
-				*/
 				PaymentService::ins()->add($data);
 			});
 	}

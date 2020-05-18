@@ -17,9 +17,12 @@ class CreateMonthlyDuesTable extends Migration
             $table->bigIncrements('id');
             $table->string('code');
             $table->integer('account_id');
-            $table->date('due_date');
+            $table->string('due_date', 10);
             $table->decimal('amount_due');
-            $table->mediumText('data');
+            $table->mediumText('data')
+                ->nullable()
+                ->default(null);
+                
             $table->timestamps();
             $table->unique(['code', 'account_id', 'due_date']);
         });

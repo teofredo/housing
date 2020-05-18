@@ -19,11 +19,6 @@ class AccountsController extends Controller
     protected $transformer = AccountTransformer::class;
     protected $validator = AccountValidator::class;
     
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
-    
     public function postOverride(
     	Request $request,
     	AccountValidator $validator,
@@ -52,8 +47,26 @@ class AccountsController extends Controller
     	
     	DB::rollBack();
     	
-    	$errorResponse = new ErrorResponse($e);
+    	$errorResponse = new ErrorResponse($e, $request);
     	
     	return $errorResponse->toJson();
+    }
+
+    public function _getAccountSummary($id, Request $request)
+    {
+        try {
+            
+
+            // $summary = AccountService::ins()->getAccountSummary($id);
+
+            
+
+        } catch(\Exception $e) {}
+
+        DB::rollBack();
+
+        $errorResponse = new ErrorResponse($e, $request);
+
+        return $errorResponse->toJson();
     }
 }

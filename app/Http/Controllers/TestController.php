@@ -16,6 +16,15 @@ class TestController extends Controller
 {
     public function test()
     {
+        // $result =   bcrypt('zichri');
+        // $result = MonthlyDueService::ins()->generateMonthDue('04/2020');
+        $result = PaymentService::ins()->initPayments('04/2020');
+        
+        // $result = MonthlyDueService::ins()->generateMonthDue();
+        // $account = AccountService::ins()->find(1);
+        // $result = MonthlyDueService::ins()->summarize($account);
+        dd($result);
+
         $result = \App\Models\Householder::find(1)->with('account')->get()->toJson();
         echo $result;
         die;

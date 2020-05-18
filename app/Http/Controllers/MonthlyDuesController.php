@@ -23,11 +23,6 @@ class MonthlyDuesController extends Controller
     protected $transformer = MonthlyDueTransformer::class;
     protected $validator = MonthlyDueValidator::class;
 
-    public function index($id=null, Request $request)
-    {
-    	return parent::index($id, $request);
-    }
-
     public function postOverride(Request $request)
     {
     	$command = 'generate:month-dues';
@@ -35,10 +30,10 @@ class MonthlyDuesController extends Controller
 
     	try {
     		$request->validate([
-    			'due_date' => 'required|date_format:Y-m-d'
+    			'due_date' => 'required|date_format:m/Y'
     		]);
 
-    		$dueDate = Carbon::parse($request->due_date);
+    		$dueDate = $request->due_date;
 
     		/**
     		* check if already processing or done 
@@ -73,8 +68,17 @@ class MonthlyDuesController extends Controller
 
     	} catch(\Exception $e) {}
 
-    	$errorResponse = new ErrorResponse($e);
+    	$errorResponse = new ErrorResponse($e, $request);
 
     	return $errorResponse->toJson();
+    }
+
+    public function _getSummary($id, Request $request)
+    {
+        $dueDate = $request->get('due_date', null);
+
+        $result = MonthlyDueService::ins()->getSummary($dueDate);
+
+        return response()->json(['data' => $result]);
     }
 }

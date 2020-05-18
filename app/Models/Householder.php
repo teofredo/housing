@@ -25,14 +25,13 @@ class Householder extends Base
     */
     public function setHouseNoAttribute($value)
     {
-        return $this->attributes['house_no'] = str_replace(' ', '', $value);
+        $value = preg_replace(['/\s+/', '/-+/'], '', $value);
+        return $this->attributes['house_no'] = $value;
     }
     
     public function setWaterMeterNoAttribute($value)
     {
-        $value = str_replace(' ', '', $value);
-        $value = str_replace('O', '0', $value);
-
+        $value = preg_replace(['/\s+/', '/-+/'], '', $value);
         return $this->attributes['water_meter_no'] = $value;
     }
 }

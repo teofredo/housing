@@ -7,7 +7,8 @@ use App\Services\{
     MonthlyDueService,
     PaymentService,
     ErrorResponse,
-    ProcessService
+    ProcessService,
+    ErrorLogger
 };
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -63,25 +64,14 @@ class GenerateMonthDues extends Command
                 return;
             }
 
-            $dueDate = Carbon::parse($process->due_date);
-
             $process->status = 'processing';
             $process->save();
             $this->info('processing');
 
             DB::beginTransaction();
 
-            $monthDueService
-                ->checkGeneratorLock()
-                ->setDueDate($dueDate)
-                ->generateWaterBill()
-                ->generateInternetFee()
-                ->generateOtherCharges()
-                ->generatePreviousBalance()
-                ->generatePenaltyForNonPayment()
-                ->generateAdjustments();
-
-            $paymentService->initPayments($dueDate);
+            $monthDueService->generateMonthDue($process->due_date);
+            $paymentService->initPayments($process->due_date);
 
             DB::commit();
 
@@ -97,11 +87,16 @@ class GenerateMonthDues extends Command
         DB::rollBack();
 
         //failed
-        if($process) {
+        if ($process) {
             $process->status = 'failed';
             $process->save();
         }
 
         $this->info($e->getMessage());
+
+        ErrorLogger::ins()->log(
+            $e->getMessage(), 
+            $e->trace()
+        );
     }
 }

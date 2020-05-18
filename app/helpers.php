@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Services\ConfigService;
+
+define('DUE_DATE_FORMAT', 'm/Y');
 
 function pr(array $data)
 {
@@ -17,34 +20,52 @@ function vd($data)
 	die;
 }
 
-function getNextPaymentDueDate()
+function nextDueDate(Carbon $date=null, $carbonize=false)
 {
-	$dueDate = dbConfig('payment-due');
-	if(!$dueDate) {
-		throw new \Exception('payment-due must be defined in config');
+	if ($date && $date instanceof Carbon) {
+		$nextDueDate = $date->copy()->addMonthNoOverflow();
+	} else {
+		//get carbonized due date and add month
+		$nextDueDate = getDueDate(true)->addMonthNoOverflow();
 	}
 
-	switch($dueDate->value) {
-		case 'START_OF_MONTH':
-			return Carbon::now()->startOfMonth();
-			
-		case 'END_OF_MONTH':
-			return Carbon::now()->endOfMonth();
-
-		case 'HALF_OF_MONTH':
-			return Carbon::now()->day(15);
-
-		default:
-			return Carbon::now()->day($dueDate->value);			
-	}
+	return $carbonize ? $nextDueDate : $nextDueDate->format(DUE_DATE_FORMAT);
 }
 
 function dbConfig($key=null)
 {
-	return \App\Models\Config::where('key', $key)->first();
+	$config = ConfigService::ins()->findFirst('key', $key);
+	return $config->value ?? null;
 }
 
-function getDueDate()
+function getDueDate($carbonize=false)
 {
-	return getNextPaymentDueDate();
+	$dueDate = dbConfig('due-date');
+	if (!$dueDate) {
+		throw new \Exception('current due date not set in config');	
+	}
+
+	return $carbonize ? myCarbonize($dueDate) : $dueDate;
+}
+
+/**
+* myCarbonize > month-year-carbonize
+*/
+function myCarbonize($myformatted, $delimiter='/')
+{
+	list($month, $year) = explode($delimiter, $myformatted);
+	return Carbon::createFromDate($year, $month, 1);
+}
+
+//internet cutoff
+function getCutoff($date=null)
+{
+	$cutoff = dbConfig('cut-off');
+
+	if ($date && $date instanceof \Carbon\Carbon) {
+		return $date->day($cutoff);		
+	}
+
+	$dueDate = getDueDate(true);
+	return $dueDate->day($cutoff);
 }
