@@ -7,7 +7,8 @@ use App\Services\{
     MonthlyDueService,
     PaymentService,
     ErrorResponse,
-    ProcessService
+    ProcessService,
+    ErrorLogger
 };
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -86,11 +87,16 @@ class GenerateMonthDues extends Command
         DB::rollBack();
 
         //failed
-        if($process) {
+        if ($process) {
             $process->status = 'failed';
             $process->save();
         }
 
         $this->info($e->getMessage());
+
+        ErrorLogger::ins()->log(
+            $e->getMessage(), 
+            $e->trace()
+        );
     }
 }

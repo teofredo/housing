@@ -36,7 +36,7 @@ class WaterReadingsController extends Controller
     		
     	} catch(\Exception $e) {}
     	
-    	$errorResponse = new ErrorResponse($e);
+    	$errorResponse = new ErrorResponse($e, $request);
     	
     	return $errorResponse->toJson();
     }

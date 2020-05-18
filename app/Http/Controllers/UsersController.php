@@ -42,7 +42,7 @@ class UsersController extends Controller
             
         } catch(\Exception $e) {}
         
-        $errorResponse = new ErrorResponse($e);
+        $errorResponse = new ErrorResponse($e, $request);
         
         return $errorResponse->toJson();
     }
@@ -59,7 +59,7 @@ class UsersController extends Controller
         } 
         catch(\Exception $e) {}
         
-        $errorResponse = new ErrorResponse($e);
+        $errorResponse = new ErrorResponse($e, $request);
         
         return $errorResponse->toJson();
     }

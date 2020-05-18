@@ -47,7 +47,7 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
         if($exception) {
-            $errorResponse = new \App\Services\ErrorResponse($exception);
+            $errorResponse = new \App\Services\ErrorResponse($exception, $request);
 
             return $errorResponse->toJson();
         }

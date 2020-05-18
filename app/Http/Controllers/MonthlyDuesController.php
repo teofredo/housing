@@ -33,7 +33,7 @@ class MonthlyDuesController extends Controller
     			'due_date' => 'required|date_format:m/Y'
     		]);
 
-    		$dueDate = $request->due_date ?? null;
+    		$dueDate = $request->due_date;
 
     		/**
     		* check if already processing or done 
@@ -68,7 +68,7 @@ class MonthlyDuesController extends Controller
 
     	} catch(\Exception $e) {}
 
-    	$errorResponse = new ErrorResponse($e);
+    	$errorResponse = new ErrorResponse($e, $request);
 
     	return $errorResponse->toJson();
     }

@@ -66,6 +66,6 @@ function getCutoff($date=null)
 		return $date->day($cutoff);		
 	}
 
-	$dueDate = getDueDate();
+	$dueDate = getDueDate(true);
 	return $dueDate->day($cutoff);
 }

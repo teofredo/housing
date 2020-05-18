@@ -47,7 +47,7 @@ class AccountsController extends Controller
     	
     	DB::rollBack();
     	
-    	$errorResponse = new ErrorResponse($e);
+    	$errorResponse = new ErrorResponse($e, $request);
     	
     	return $errorResponse->toJson();
     }
@@ -65,7 +65,7 @@ class AccountsController extends Controller
 
         DB::rollBack();
 
-        $errorResponse = new ErrorResponse($e);
+        $errorResponse = new ErrorResponse($e, $request);
 
         return $errorResponse->toJson();
     }

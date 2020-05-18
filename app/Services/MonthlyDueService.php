@@ -10,7 +10,8 @@ use App\Models\{
 	MonthlyDue,
 	WaterReading,
 	OtherCharge,
-	InternetSubscription
+	InternetSubscription,
+	Account
 };
 use App\Traits\AccountSummary;
 use Illuminate\Support\Facades\DB;
@@ -56,21 +57,19 @@ class MonthlyDueService extends AbstractService
 	{
 		$this->dueDate = $dueDate;
 
-		AccountService::ins()
-			->findBy('status', 'active')
-			->each(function($account) {
-				$summary = $this->summarize($account);
+		Account::all()->each(function($account) {
+			$summary = $this->summarize($account);
 
-				foreach($summary as $key => $value) {
-					$fn = 'save' . Str::studly($key);
-					
-					if (method_exists($this, $fn) 
-						&& is_callable([$this, $fn])) {
+			foreach($summary as $key => $value) {
+				$fn = 'save' . Str::studly($key);
+				
+				if (method_exists($this, $fn) 
+					&& is_callable([$this, $fn])) {
 
-						$this->$fn($value);
-					}
+					$this->$fn($value);
 				}
-			});
+			}
+		});
 	}
 
 	private function saveWater($model)
@@ -146,8 +145,8 @@ class MonthlyDueService extends AbstractService
 			'account_id' => $this->account->account_id,
 			'due_date' => $this->dueDate
 		], [
-			'amount_due' => $data['amount_due'],
-			'data' => $data['data']
+			'amount_due' => $data['amount_due'] ?? 0,
+			'data' => $data['data'] ?? null
 		]);	
 	}
 }

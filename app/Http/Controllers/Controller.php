@@ -112,7 +112,9 @@ class Controller extends BaseController
 
         } catch(\Exception $e) {}
 
-        throw $e;
+        $errorResponse = new ErrorResponse($e, $request);
+
+        return $errorResponse->toJson();
     }
     
     public function post(Request $request)
@@ -147,7 +149,7 @@ class Controller extends BaseController
             
         } catch(\Exception $e) {}
         
-        $errorResponse = new ErrorResponse($e);
+        $errorResponse = new ErrorResponse($e, $request);
         
         return $errorResponse->toJson();   
     }
