@@ -40,9 +40,19 @@ class ConfigController extends Controller
     public function _getDueDate($id=null, Request $request)
     {
         $dueDate = getDueDate();
-
         return response()->json([
             'data' => ['due_date' => $dueDate]
         ]);
     }
+
+    /**
+    * internet cut-off date
+    */
+    // public function _getCutoff($id=null, Request $request)
+    // {
+    //     $cutOff = getCutoff();
+    //     return response()->json([
+    //         'data' => ['cut_off' => $cutOff]
+    //     ]);
+    // }
 }

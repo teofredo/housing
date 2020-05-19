@@ -92,11 +92,18 @@ trait AccountSummary
 		//get pro-rated fee id
 		$fee = FeeService::ins()->findFirst('code', 'pro-rated');
 
+		$this->setAttribute($internet, [
+			'n_days' => $n,
+			'days_in_month' => $ndays,
+			'per_day' => round($perDay, 2),
+			'cut_off' => $cutoff->format('Y-m-d')
+		]);
+
 		//if pro rated less than 15 days then include to next due date
 		if ($n < $proRated) {
 			$nextDueDate = nextDueDate($this->dueDate);
 
-			$data = [
+			/*$data = [
 				'plan' => $internet->plan->name,
 				'monthly' => $internet->plan->monthly,
 				'installed_at' => $installedAt->format('Y-m-d'),
@@ -105,7 +112,12 @@ trait AccountSummary
 				'days_in_month' => $ndays,
 				'per_day' => round($perDay, 2),
 				'pro_rated' => round($proRatedAmount, 2)
-			];
+			];*/
+
+			$this->setAttribute($internet, [
+				'pro_rated' => round($proRatedAmount, 2),
+				'is_pro_rated' => true
+			]);
 
 			return OtherCharge::updateOrCreate([
 				'account_id' => $this->account->account_id,
@@ -126,8 +138,10 @@ trait AccountSummary
 				$isProRated = 0;
 			} 
 
-			$internet->setAttribute('amount_due', $amountDue);
-			$internet->setAttribute('is_pro_rated', $isProRated);
+			$this->setAttribute($internet, [
+				'amount_due' => $amountDue,
+				'is_pro_rated' => $isProRated
+			]);
 
 			return $internet;
 		}
@@ -196,5 +210,12 @@ trait AccountSummary
 				'account_id' => $this->account->account_id,
 				'due_date' => $this->dueDate
 			]);
+	}
+
+	private function setAttribute(&$model, array $data)
+	{
+		foreach($data as $key => $value) {
+			$model->setAttribute($key, $value);
+		}
 	}
 }

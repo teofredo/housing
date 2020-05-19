@@ -91,10 +91,6 @@ class Controller extends BaseController
                 //api query builder
                 $resource = $this->buildQuery($request);
 
-                if(!$resource) {
-                    throw new EmptyResultException('resource returned an empty result');
-                }
-
                 if($resource instanceof \Illuminate\Database\Eloquent\Collection) {
                     return $this->fractal
                         ->collection($resource, $this->transformer)

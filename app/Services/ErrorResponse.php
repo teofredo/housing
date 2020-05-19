@@ -24,7 +24,9 @@ class ErrorResponse
 
 		$this->request = $request;
 		
-		$this->format()->log();
+		$this->format()
+			->log()
+			->intercept();
 	}
 	
 	private function format()
@@ -43,19 +45,6 @@ class ErrorResponse
 
 		// used for logging only
 		$this->trace = $this->exception->getTrace();
-		
-		//auth exception
-		if($this->exception instanceof \Illuminate\Auth\AuthenticationException) {
-			$this->format['code'] = 401;
-		}
-
-		if($this->exception instanceof EmptyResultException) {
-			$this->format['code'] = 'EMPTY_RESULT';
-		}
-
-		if ($this->exception instanceof \Illuminate\Database\QueryException) {
-			// $this->format['message'] = 'SQL Error';
-		}
 
 		return $this;
 	}
@@ -74,6 +63,20 @@ class ErrorResponse
 			json_encode($this->trace),
 			json_encode($request)	
 		);
+
+		return $this;
+	}
+
+	private function intercept()
+	{
+		//auth exception
+		if($this->exception instanceof \Illuminate\Auth\AuthenticationException) {
+			$this->format['code'] = 401;
+		}
+
+		if ($this->exception instanceof \Illuminate\Database\QueryException) {
+			$this->format['message'] = 'SQL Error';
+		}
 	}
 	
 	/**
