@@ -16,8 +16,9 @@ class TestController extends Controller
 {
     public function test()
     {
-        // $result =   bcrypt('zichri');
-        $result = MonthlyDueService::ins()->generateMonthDue('04/2020');
+        $result = getPaymentDue();
+        // $result = MonthlyDueService::ins()->getSummary('04/2020', 5)->toArray();
+        // $result = MonthlyDueService::ins()->generateMonthDue('04/2020');
         // $result = PaymentService::ins()->initPayments('04/2020');
         
         // $result = MonthlyDueService::ins()->generateMonthDue();

@@ -37,13 +37,23 @@ class ConfigController extends Controller
     	return $errorResponse->toJson();
     }
 
-    public function _getDueDate($id=null, Request $request)
+    /*public function _getDueDate($id=null, Request $request)
     {
         $dueDate = getDueDate();
         return response()->json([
             'data' => ['due_date' => $dueDate]
         ]);
+    }*/
+
+    public function _getPaymentDue($id=null, Request $request)
+    {
+        $paymentDue = getPaymentDue();
+        return response()->json([
+            'data' => ['payment_due' => $paymentDue]
+        ]); 
     }
+
+
 
     /**
     * internet cut-off date

@@ -31,12 +31,17 @@ class MonthlyDueService extends AbstractService
 		return MonthlyDue::class;
 	}
 
-	public function getSummary($dueDate)
+	public function getSummary($dueDate, $accountId=null)
 	{
-		return $this->model
+		$result = $this->model
 			->where('due_date', $dueDate)
-			->where('code', '<>', 'adjustments')
-			->join('accounts', 'accounts.account_id', '=', 'monthly_dues.account_id')
+			->where('code', '<>', 'adjustments');
+
+			if ($accountId) {
+				$result->where('monthly_dues.account_id', $accountId);
+			}
+
+			$result->join('accounts', 'accounts.account_id', '=', 'monthly_dues.account_id')
 			->select(['amount_due' => function($query) {
 				$query->selectRaw('sum(amount_due) - (SELECT SUM(amount_due) FROM monthly_dues WHERE code = ? AND account_id = accounts.account_id AND due_date = monthly_dues.due_date GROUP BY account_id, due_date)', ['adjustments']);
 			}])
@@ -47,8 +52,9 @@ class MonthlyDueService extends AbstractService
 				'due_date'
 			)
 			->groupBy('account_id')
-			->groupBy('due_date')
-			->get();
+			->groupBy('due_date');
+
+		return $accountId ? $result->first() : $result->get(); 
 	}
 
 	public function generateMonthDue($dueDate)

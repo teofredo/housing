@@ -18,8 +18,6 @@ class PaymentTransformer extends AbstractTransformer
 			'account_id' => (int) $model->account_id,
 			'reference_no' => $model->reference_no,
 			'amount_due' => $model->amount_due,
-			'prev_balance' => $model->prev_balance,
-			'total_due' => $model->amount_due + $model->prev_balance,
 			'amount_received' => $model->amount_received,
 			'amount_paid' => $model->amount_paid,
 			'change' => $model->amount_received - $model->amount_paid,

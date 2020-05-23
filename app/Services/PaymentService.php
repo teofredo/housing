@@ -56,7 +56,6 @@ class PaymentService extends AbstractService
 					'due_date' => $dueDate
 				]);
 
-				$penalty = 0;
 				foreach($monthDues as $m) {
 					switch($m->code) {
 						case 'adjustments':
@@ -67,16 +66,13 @@ class PaymentService extends AbstractService
 						case 'internet':
 						case 'other_charges':
 						case 'prev_balance':
-							$data['amount_due'] += $m->amount_due;
-							continue;
-
 						case 'penalty':
-							$penalty += $m->amount_due;
+							$data['amount_due'] += $m->amount_due;
 							continue;
 					}
 				}
 
-				$data['current_balance'] = $data['amount_due'] + $penalty;
+				$data['current_balance'] = $data['amount_due'];
 
 				PaymentService::ins()->add($data);
 			});

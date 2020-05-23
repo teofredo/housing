@@ -179,7 +179,7 @@ trait AccountSummary
             	'account_id' => $this->account->account_id,
             	'other_payment' => 0
             ])
-            ->where('due_date', '<', myCarbonize($this->dueDate)->endOfMonth())
+            ->where('due_date', '<', $this->dueDate)
             ->where('current_balance', '>', 0)
             ->orderBy('due_date', 'desc')
             ->orderBy('created_at', 'desc')

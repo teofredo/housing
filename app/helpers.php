@@ -69,3 +69,27 @@ function getCutoff($date=null)
 	$dueDate = getDueDate(true);
 	return $dueDate->day($cutoff);
 }
+
+function getPaymentDue()
+{
+	$dueDate = getDueDate(true);
+	$paymentDue = dbConfig('payment-due');
+
+	if (is_int($paymentDue)) {
+		return $dueDate->day($paymentDue);
+	}
+
+	switch($paymentDue) {
+		case 'START_OF_MONTH':
+			return $dueDate;
+
+		case 'HALF_OF_MONTH':
+			return $dueDate->day(15);
+
+		case 'END_OF_MONTH':
+		default:
+			// return $dueDate->endOfMonth();
+	}
+
+	return $dueDate->endOfMonth();
+}
