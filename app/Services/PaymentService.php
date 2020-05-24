@@ -41,13 +41,12 @@ class PaymentService extends AbstractService
 		AccountService::ins()
 			->getModel()
 			->where('status', 'active')
-			->whereRaw('accounts.account_id NOT IN(select account_id from payments WHERE due_date = ? and other_payment = ?)', [$dueDate, 0])
+			->whereRaw('accounts.account_id NOT IN(select account_id from payments WHERE due_date = ? and other_payment = 0 and reference_no is not null and paid_at is not null)', [$dueDate])
 			->get()
 			->each(function($model) use($dueDate){
-				$data = [
-					'account_id' => $model->account_id,
-					'due_date' => $dueDate,
-					'amount_due' => 0
+				$data = [					
+					'amount_due' => 0,
+					'description' => "Monthly Bill - {$dueDate}"
 				];
 
 				// get month dues
@@ -74,7 +73,13 @@ class PaymentService extends AbstractService
 
 				$data['current_balance'] = $data['amount_due'];
 
-				PaymentService::ins()->add($data);
+				Payment::updateOrCreate([
+					'code' => 'bill',
+					'account_id' => $model->account_id,
+					'due_date' => $dueDate
+					// 'reference_no' => null,
+					// 'other_payment' => 0
+				], $data);
 			});
 	}
 }

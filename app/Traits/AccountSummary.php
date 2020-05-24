@@ -71,6 +71,12 @@ trait AccountSummary
 		};
 		
 		$installedAt = Carbon::parse($internet->installed_at);
+		$carbonDueDate = getPaymentDue($this->dueDate);
+
+		if ($installedAt->gte($carbonDueDate)) {
+			return $internet;
+		}
+
 		$cutoff = getCutoff();
 		$prevCutoff = $cutoff->copy()->subMonthNoOverflow();
 
@@ -177,7 +183,8 @@ trait AccountSummary
 			->getModel()
 			->where([
             	'account_id' => $this->account->account_id,
-            	'other_payment' => 0
+            	'other_payment' => 0,
+            	'code' => 'bill'
             ])
             ->where('due_date', '<', $this->dueDate)
             ->where('current_balance', '>', 0)

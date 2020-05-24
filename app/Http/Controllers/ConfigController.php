@@ -47,7 +47,7 @@ class ConfigController extends Controller
 
     public function _getPaymentDue($id=null, Request $request)
     {
-        $paymentDue = getPaymentDue();
+        $paymentDue = getPaymentDue($request->due_date ?? null);
         return response()->json([
             'data' => ['payment_due' => $paymentDue]
         ]); 

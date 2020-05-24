@@ -70,9 +70,14 @@ function getCutoff($date=null)
 	return $dueDate->day($cutoff);
 }
 
-function getPaymentDue()
+function getPaymentDue($dueDate=null)
 {
-	$dueDate = getDueDate(true);
+	if ($dueDate && !$dueDate instanceof Carbon) {
+		$dueDate = myCarbonize($dueDate);
+	} else {
+		$dueDate = getDueDate(true);
+	}
+	
 	$paymentDue = dbConfig('payment-due');
 
 	if (is_int($paymentDue)) {
