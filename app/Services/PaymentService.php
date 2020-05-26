@@ -41,7 +41,7 @@ class PaymentService extends AbstractService
 		AccountService::ins()
 			->getModel()
 			->where('status', 'active')
-			->whereRaw('accounts.account_id NOT IN(select account_id from payments WHERE due_date = ? and other_payment = 0 and reference_no is not null and paid_at is not null)', [$dueDate])
+			->whereRaw('accounts.account_id NOT IN(select account_id from payments WHERE due_date = ? and other_payment = 0 and or_no is not null and paid_at is not null)', [$dueDate])
 			->get()
 			->each(function($model) use($dueDate){
 				$data = [					
@@ -73,12 +73,22 @@ class PaymentService extends AbstractService
 
 				$data['current_balance'] = $data['amount_due'];
 
+				// get soa no
+				$soa = SoaService::ins()->latest([
+					'account_id' => $model->account_id,
+					'due_date' => $dueDate
+				]);
+
+				if(!$soa) {
+					throw new \Exception('soa not found.');
+				}
+
+				$data['soa_no'] = $soa->soa_no;
+
 				Payment::updateOrCreate([
 					'code' => 'bill',
 					'account_id' => $model->account_id,
 					'due_date' => $dueDate
-					// 'reference_no' => null,
-					// 'other_payment' => 0
 				], $data);
 			});
 	}

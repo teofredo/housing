@@ -101,4 +101,8 @@ Route::group([
 		$r->get('/{id?}', 'ConfigController@index');
 		$r->post('/', 'ConfigController@postOverride');
 	});
+
+	$r->prefix('soa')->group(function($r){
+		$r->get('/{id?}', 'SoaController@index');
+	});
 });

@@ -26,6 +26,8 @@ class MonthlyDueService extends AbstractService
 
 	protected $dueDate;
 
+	private $soa;
+
 	public function model()
 	{
 		return MonthlyDue::class;
@@ -61,7 +63,23 @@ class MonthlyDueService extends AbstractService
 	{
 		$this->dueDate = $dueDate;
 
+		$soa = SoaService::ins()->first(['due_date' => $this->dueDate]);
+		if ($soa) {
+			throw new \Exception("SOA for {$this->dueDate} already generated. Aborting process.");
+		}
+
 		Account::all()->each(function($account) {
+			// create soa
+			$this->soa = SoaService::ins()->add([
+				'soa_no' => Carbon::now()->format('my') . $account->account_id,
+				'account_id' => $account->account_id,
+				'due_date' => $this->dueDate
+			]);
+
+			if(!$this->soa) {
+				throw new \Exception('failed to generate soa.');
+			}
+
 			$summary = $this->summarize($account);
 
 			foreach($summary as $key => $value) {
@@ -149,6 +167,7 @@ class MonthlyDueService extends AbstractService
 			'account_id' => $this->account->account_id,
 			'due_date' => $this->dueDate
 		], [
+			'soa_no' => $this->soa->soa_no,
 			'amount_due' => $data['amount_due'] ?? 0,
 			'data' => $data['data'] ?? null
 		]);	
