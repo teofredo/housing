@@ -86,6 +86,7 @@ Route::group([
 	$r->prefix('payments')->group(function($r){
 		$r->get('/{id?}', 'PaymentsController@index');
 		$r->post('/', 'PaymentsController@postOverride');
+		$r->put('/{id?}', 'PaymentsController@putOverride');
 	});
 
 	$r->prefix('process')->group(function($r){

@@ -113,7 +113,7 @@ class Controller extends BaseController
         return $errorResponse->toJson();
     }
     
-    public function post(Request $request)
+    public function post(Request $request, $params=null)
     {
         try {
             // if request is calling special function
@@ -128,7 +128,7 @@ class Controller extends BaseController
                 throw new \Exception('undefined special function ' . $_function);
             }
 
-            $data = $request->all();
+            $data = $params ?? $request->all();
             
             $validator = $this->validator ?? null;
             if($validator) {
@@ -147,7 +147,38 @@ class Controller extends BaseController
         
         $errorResponse = new ErrorResponse($e, $request);
         
-        return $errorResponse->toJson();   
+        return $errorResponse->toJson();
+    }
+
+    public function put($id=null, Request $request, $params=null)
+    {
+        try {
+            $data = $params ?? $request->all();
+
+            $validator = $this->validator ?? null;
+            if($validator) {
+                $this->validator = new $validator;
+                $this->validator
+                    ->setConstraints($this->vConstraints)
+                    ->validate($data);
+            } 
+
+            $primaryKey = $this->model->getKeyName();
+
+            $resource = null;
+            if ($success = $this->model->where($primaryKey, $id)->update($data)) {
+                $resource = $this->model->find($id);
+            }
+
+            $resource = $this->fractal->item($resource, $this->transformer)->get();
+            
+            return response($resource);
+
+        } catch(\Exception $e) {}
+
+        $errorResponse = new ErrorResponse($e, $request);
+        
+        return $errorResponse->toJson();
     }
     
     public function requestToken(

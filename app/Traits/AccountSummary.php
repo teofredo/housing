@@ -109,17 +109,6 @@ trait AccountSummary
 		if ($n < $proRated) {
 			$nextDueDate = nextDueDate($this->dueDate);
 
-			/*$data = [
-				'plan' => $internet->plan->name,
-				'monthly' => $internet->plan->monthly,
-				'installed_at' => $installedAt->format('Y-m-d'),
-				'cutoff' => $cutoff->format('Y-m-d'),
-				'n_days' => $n,
-				'days_in_month' => $ndays,
-				'per_day' => round($perDay, 2),
-				'pro_rated' => round($proRatedAmount, 2)
-			];*/
-
 			$this->setAttribute($internet, [
 				'pro_rated' => round($proRatedAmount, 2),
 				'is_pro_rated' => true

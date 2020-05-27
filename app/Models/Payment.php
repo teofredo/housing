@@ -10,4 +10,9 @@ class Payment extends Base
     {
     	return $this->belongsTo(__NAMESPACE__ . '\\Account', 'account_id', 'account_id');
     }
+
+    public function setOrNoAttribute($value)
+    {
+    	$this->attributes['or_no'] = strtoupper($value);
+    }
 }
