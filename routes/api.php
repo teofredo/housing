@@ -25,11 +25,15 @@ Route::group([
 	$r->prefix('blocks')->group(function($r){
 		$r->get('/{id?}', 'BlocksController@index');
 		$r->post('/', 'BlocksController@post');
+		$r->put('/{id?}', 'BlocksController@put');
+		$r->delete('/{id?}', 'BlocksController@delete');
 	});
 	
 	$r->prefix('lots')->group(function($r){
 		$r->get('/{id?}', 'LotsController@index');
 		$r->post('/', 'LotsController@postOverride');
+		$r->put('/{id?}', 'LotsController@put');
+		$r->delete('/{id?}', 'LotsController@delete');
 	});
 	
 	$r->prefix('accounts')->group(function($r){

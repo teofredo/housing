@@ -16,8 +16,14 @@ use App\Services\{
 
 use Illuminate\Support\Carbon;
 use App\Traits\ApiQueryBuilder;
-use App\Exceptions\EmptyResultException;
-use Illuminate\Support\Str;
+use App\Exceptions\{
+    ValidationException,
+    EmptyResultException
+};
+use Illuminate\Support\{
+    Str,
+    Arr
+};
 
 class Controller extends BaseController
 {
@@ -153,7 +159,12 @@ class Controller extends BaseController
     public function put($id=null, Request $request, $params=null)
     {
         try {
+            if (!$id) {
+                throw new ValidationException('Invalid ID');
+            }
+            
             $data = $params ?? $request->all();
+            $data['update_id'] = $id;
 
             $validator = $this->validator ?? null;
             if($validator) {
@@ -166,6 +177,7 @@ class Controller extends BaseController
             $primaryKey = $this->model->getKeyName();
 
             $resource = null;
+            $data = Arr::except($data, 'update_id');
             if ($success = $this->model->where($primaryKey, $id)->update($data)) {
                 $resource = $this->model->find($id);
             }
@@ -176,6 +188,24 @@ class Controller extends BaseController
 
         } catch(\Exception $e) {}
 
+        $errorResponse = new ErrorResponse($e, $request);
+        
+        return $errorResponse->toJson();
+    }
+    
+    public function delete($id=null)
+    {
+        try {
+            if ($success = $this->model->find($id)->delete()) {
+                return response()->json([
+                    'success' => $success
+                ]);
+            }
+            
+            throw new \Exception('Delete failed');
+            
+        } catch(\Exception $e) {}
+        
         $errorResponse = new ErrorResponse($e, $request);
         
         return $errorResponse->toJson();

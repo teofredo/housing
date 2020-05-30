@@ -16,21 +16,20 @@ class TestController extends Controller
 {
     public function test()
     {
-        $result = MonthlyDueService::ins()->getModel()->getKeyName();
-
+        
+        // $result = MonthlyDueService::ins()->getModel()->getKeyName();
         // $result = getPaymentDue();
         // $result = MonthlyDueService::ins()->getSummary('04/2020', 5)->toArray();
         // $result = MonthlyDueService::ins()->generateMonthDue('04/2020');
         // $result = PaymentService::ins()->initPayments('04/2020');
-        
         // $result = MonthlyDueService::ins()->generateMonthDue();
         // $account = AccountService::ins()->find(1);
         // $result = MonthlyDueService::ins()->summarize($account);
-        dd($result);
+        // dd($result);
 
-        $result = \App\Models\Householder::find(1)->with('account')->get()->toJson();
-        echo $result;
-        die;
+        // $result = \App\Models\Householder::find(1)->with('account')->get()->toJson();
+        // echo $result;
+        // die;
         // $result = \App\Models\Block::with('lots')->get()->toJson();
         // print_r($result);
         // die;
