@@ -1,7 +1,10 @@
 <?php
 namespace App\Services;
 
-use App\Models\WaterReading;
+use App\Models\{
+	WaterReading,
+	WaterRate
+};
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\{
 	Str,
@@ -18,13 +21,20 @@ class WaterReadingService extends AbstractService
 		return WaterReading::class;
 	}
 	
-	public function addWaterReading(array $data)
+	public function saveWaterReading(array $data, $id=null)
 	{
 		// get previous reading
-		$reading = $this->latest([
+		$reading = WaterReading::where([
 			'account_id' => $data['account_id'],
-			'meter_no' => $data['meter_no'],
+			'meter_no' => $data['meter_no']
 		]);
+		
+		// for editing
+		if ($id) {
+			$reading = $reading->where('id', '<>', $id);
+		}
+		
+		$reading = $reading->first();
 
 		$data['prev_read'] = $reading->curr_read ?? 0;
 		$data['prev_read_date'] = $reading->curr_read_date ?? null;
@@ -38,13 +48,18 @@ class WaterReadingService extends AbstractService
 
 		// current reading date
 		$data['curr_read_date'] = Carbon::now();
-
-		$reading = $this->model->updateOrCreate(
-			[ 'account_id' => $data['account_id'], 'due_date' => $data['due_date'] ],
-			Arr::except($data, ['account_id', 'due_date'])
-		);
+		
+		$reading = null;
+		if (!$id) {
+			$reading = $this->model->create($data);
+		} else {
+			if ($success = $this->model->where('id', $id)->update($data)) {
+				$reading = WaterReading::find($id);
+			}
+		}
+		
 		if(!$reading) {
-			throw new \Exception('current reading not saved.');
+			throw new \Exception('save failed.');
 		}
 
 		return $reading;
@@ -52,14 +67,9 @@ class WaterReadingService extends AbstractService
 
 	public function getWaterRateByConsumption($consumption)
 	{
-		$waterRate = WaterRateService::ins()
-			->getModel()
-			->where('min_m3', '<=', $consumption)
-			->where('max_m3', '>=', $consumption)
-			->first();
-
+		$waterRate = WaterRate::whereRaw('? BETWEEN min_m3 AND max_m3', [$consumption])->first();
 		if(!$waterRate) {
-			return null;
+			throw new \Exception('No applicable rates for this reading.');
 		}
 
 		if($waterRate->min_fee > 0) {

@@ -18,10 +18,10 @@ class ErrorResponse
 
 	private $request;
 	
-	public function __construct(Exception $exception, Request $request=null)
+	public function __construct(Exception $exception, $request=null)
 	{
 		$this->exception = $exception ?? null;
-
+		
 		$this->request = $request;
 		
 		$this->format()
@@ -56,12 +56,10 @@ class ErrorResponse
 	*/
 	private function log()
 	{
-		$request = $this->request ? $this->request->all() : null;
-
 		ErrorLogger::ins()->log(
 			json_encode($this->format),
 			json_encode($this->trace),
-			json_encode($request)	
+			json_encode($this->request)	
 		);
 
 		return $this;

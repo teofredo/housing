@@ -31,7 +31,7 @@ Route::group([
 	
 	$r->prefix('lots')->group(function($r){
 		$r->get('/{id?}', 'LotsController@index');
-		$r->post('/', 'LotsController@postOverride');
+		$r->post('/', 'LotsController@post');
 		$r->put('/{id?}', 'LotsController@put');
 		$r->delete('/{id?}', 'LotsController@delete');
 	});
@@ -48,26 +48,36 @@ Route::group([
 	$r->prefix('internet-plans')->group(function($r){
 		$r->get('/{id?}', 'InternetPlansController@index');
 		$r->post('/', 'InternetPlansController@post');
+		$r->put('/{id?}', 'InternetPlansController@put');
+		$r->delete('/{id?}', 'InternetPlansController@delete');
 	});
 	
 	$r->prefix('water-rates')->group(function($r){
 		$r->get('/{id?}', 'WaterRatesController@index');
-		$r->post('/', 'WaterRatesController@postOverride');
+		$r->post('/', 'WaterRatesController@post');
+		$r->put('/{id?}', 'WaterRatesController@putOverride');
+		$r->delete('/{id?}', 'WaterRatesController@delete');
 	});
 	
 	$r->prefix('fees')->group(function($r){
 		$r->get('/{id?}', 'FeesController@index');
 		$r->post('/', 'FeesController@post');
+		$r->put('/{id?}', 'FeesController@put');
+		$r->delete('/{id?}', 'FeesController@delete');
 	});
 	
 	$r->prefix('internet-subscriptions')->group(function($r){
 		$r->get('/{id?}', 'InternetSubscriptionsController@index');
-		$r->post('/', 'InternetSubscriptionsController@postOverride');
+		$r->post('/', 'InternetSubscriptionsController@post');
+		$r->put('/{id?}', 'InternetSubscriptionsController@put');
+		$r->delete('/{id?}', 'InternetSubscriptionsController@delete');
 	});
 	
 	$r->prefix('water-readings')->group(function($r){
 		$r->get('/{id?}', 'WaterReadingsController@index');
 		$r->post('/', 'WaterReadingsController@postOverride');
+		$r->put('/{id?}', 'WaterReadingsController@putOverride');
+		$r->delete('/{id?}', 'WaterReadingsController@delete');
 	});
 
 	$r->prefix('other-charges')->group(function($r){

@@ -3,7 +3,7 @@ namespace App\Validators;
 
 class AccountValidator extends BaseValidator
 {
-	protected $rules = [
+	private $rules = [
 		'email' => 'required|string|unique:accounts,email',
 		'password' => 'sometimes|string',
 		
@@ -40,8 +40,14 @@ class AccountValidator extends BaseValidator
 		'lot_id.unique' => 'the house has already been taken'
 	];
 	
-	protected function overrideRules()
+	public function getRules()
 	{
-		$this->rules['lot_id'] = "required|integer|unique:App\Models\Householder,lot_id,NULL,id,block_id,{$this->constraints['block_id']},deleted_at,NULL";
+		return array_merge($this->rules, [
+			'lot_id' => [
+				'required',
+				'integer',
+				"unique:householders,lot_id,NULL,id,block_id,{$this->data['block_id']},deleted_at,NULL"
+			]
+		]);
 	}
 }

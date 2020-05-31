@@ -1,12 +1,12 @@
 <?php
 namespace App\Validators;
 
+use App\Models\WaterRate;
+
 class WaterRateValidator extends BaseValidator
 {
-	protected $rules = [
+	private $rules = [
 		'min_fee' => 'required_if:min_m3,0|numeric|min:0',
-		'min_m3' => 'required|numeric|min:0|lte:max_m3',
-		'max_m3' => 'required|numeric|gte:min_m3',
 		'per_m3' => 'required|numeric|min:0'
 	];
 	
@@ -17,8 +17,48 @@ class WaterRateValidator extends BaseValidator
 		'max_m3.unique' => 'm3 range has already been added'
 	];
 	
-	protected function overrideRules()
+	public function getRules()
 	{
-		$this->rules['max_m3'] = "required|numeric|gte:min_m3|unique:water_rates,max_m3,NULL,id,min_m3,{$this->constraints['min_m3']}";		
+		$maxM3Rules = [
+			'required',
+			'numeric',
+			'gte:min_m3'
+		];
+		
+		$minM3Rules = [
+			'required',
+			'numeric',
+			'min:0',
+			'lte:max_m3'
+		];
+		
+		if (!isset($this->data['update_id'])) {
+			array_push($maxM3Rules, "unique:water_rates,max_m3,NULL,id,min_m3,{$this->data['min_m3']},deleted_at,NULL");
+			
+			array_push($minM3Rules, function ($attribute, $value, $fail) {
+				$waterRate = WaterRate::whereRaw('? BETWEEN min_m3 AND max_m3', [$this->data['min_m3']])->first();
+				if ($waterRate) {
+					$fail('water rates conflict error.');
+				}
+			});
+			
+		} else {
+			array_push($maxM3Rules, "unique:water_rates,max_m3,{$this->data['update_id']},id,min_m3,{$this->data['min_m3']},deleted_at,NULL");
+			
+			array_push($minM3Rules, function ($attribute, $value, $fail) {
+				$waterRate = WaterRate::where('id', '<>', $this->data['update_id'])
+					->whereRaw('? BETWEEN min_m3 AND max_m3', [$this->data['min_m3']])
+					->first();
+					
+				if ($waterRate) {
+					$fail('water rates conflict error.');
+				}
+			});
+		}
+		
+		return array_merge($this->rules, [
+			'max_m3' => $maxM3Rules,
+			'min_m3' => $minM3Rules
+		]);
 	}
 }

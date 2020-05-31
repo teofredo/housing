@@ -35,6 +35,7 @@ class CreateInternetSubscriptionsTable extends Migration
                 ->default(null);
                 
             $table->timestamps();
+            $table->softDeletes();
 
             $table->unique(['account_id', 'active']);
         });

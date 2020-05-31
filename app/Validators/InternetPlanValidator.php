@@ -3,8 +3,8 @@ namespace App\Validators;
 
 class InternetPlanValidator extends BaseValidator
 {
-	protected $rules = [
-		'name' => 'required|string|unique:internet_plans,name',
+	private $rules = [
+		'name' => 'required|string|unique:internet_plans,name,NULL,plan_id,deleted_at,NULL',
 		'monthly' => 'required|numeric|min:0',
 		'mbps' => 'required|numeric|max:100|min:0'
 	];
@@ -18,4 +18,17 @@ class InternetPlanValidator extends BaseValidator
 		'mbps.numeric' => 'invalid mbps value',
 		'mbps.max' => 'mbps exceeds maximum limit '
 	];
+	
+	public function getRules()
+	{
+		if (isset($this->data['update_id'])) {
+			$this->rules['name'] = [
+				'required',
+				'string',
+				"unique:internet_plans,name,{$this->data['update_id']},plan_id,deleted_at,NULL"
+			];
+		}
+		
+		return $this->rules;
+	}
 }

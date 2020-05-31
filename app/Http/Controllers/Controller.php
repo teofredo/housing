@@ -106,6 +106,10 @@ class Controller extends BaseController
     		} else {
                 $resource = $this->model->find($id);
             }
+            
+            if (!$resource && $includes) {
+                return response()->json([ 'data' => [] ]);
+            }
 
     		return $this->fractal
     			->item($resource, $this->transformer)
@@ -163,7 +167,7 @@ class Controller extends BaseController
                 throw new ValidationException('Invalid ID');
             }
             
-            $data = $params ?? $request->all();
+            $data = $params ?? $request->all();            
             $data['update_id'] = $id;
 
             $validator = $this->validator ?? null;
