@@ -10,7 +10,8 @@ use App\Services\{
     PaymentService,
     MonthlyDueService,
     WaterRateService,
-    WaterReadingService
+    WaterReadingService,
+    InternetSubscriptionService
 };
 use Carbon\Carbon;
 
@@ -18,14 +19,15 @@ class TestController extends Controller
 {
     public function test()
     {
-        WaterReadingService::ins()->saveWaterReading([
-            'account_id' => 1,
-            'meter_no' => 'BLK1LOT1',
-            'curr_read' => 10,
-            'due_date' => '03/2020',
-            'read_by' => 'lennon'
-        ], 3);
+        InternetSubscriptionService::ins()->cancelPlan(3, ['cancel_plan'=>true,'cancel_reason'=>'test']);
         die;
+        // WaterReadingService::ins()->saveWaterReading([
+        //     'account_id' => 1,
+        //     'meter_no' => 'BLK1LOT1',
+        //     'curr_read' => 10,
+        //     'due_date' => '03/2020',
+        //     'read_by' => 'lennon'
+        // ], 3);
         // $result = MonthlyDueService::ins()->getModel()->getKeyName();
         // $result = getPaymentDue();
         // $result = MonthlyDueService::ins()->getSummary('04/2020', 5)->toArray();

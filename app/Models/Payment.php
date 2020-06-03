@@ -5,6 +5,10 @@ namespace App\Models;
 class Payment extends Base
 {
     protected $primaryKey = 'payment_id';
+    
+    protected $dates = [
+    	'paid_at', 'created_at', 'updated_at'
+    ];
 
     public function account()
     {

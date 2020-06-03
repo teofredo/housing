@@ -16,6 +16,10 @@ class Account extends Authenticatable
     
     protected $guarded = [];
     
+    protected $dates = [
+        'created_at', 'updated_at', 'deleted_at'
+    ];
+    
     public function householder()
     {
     	return $this->hasOne(__NAMESPACE__ . '\\Householder', 'account_id');

@@ -167,6 +167,18 @@ class Controller extends BaseController
                 throw new ValidationException('Invalid ID');
             }
             
+            // if request is calling special function
+            if($_function = $request->get('_function')) {
+                $_function = '_put' . Str::studly($_function);
+                
+                if(method_exists($this, $_function)
+                    && is_callable([$this, $_function])) {
+                    return $this->$_function($id, $request);
+                }
+
+                throw new \Exception('undefined special function ' . $_function);
+            }
+            
             $data = $params ?? $request->all();            
             $data['update_id'] = $id;
 
