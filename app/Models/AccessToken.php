@@ -9,4 +9,8 @@ class AccessToken extends Base
 	use SoftDeletes;
 	
     public $timestamps = true;
+    
+    protected $dates = [
+    	'expired_at', 'created_at', 'updated_at'
+    ];
 }

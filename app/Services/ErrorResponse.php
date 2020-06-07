@@ -18,13 +18,15 @@ class ErrorResponse
 
 	private $request;
 	
-	public function __construct(Exception $exception, Request $request=null)
+	public function __construct(Exception $exception, $request=null)
 	{
 		$this->exception = $exception ?? null;
-
-		$this->request = $request;
 		
-		$this->format()->log();
+		$this->request = $request instanceof Request ? $request->all() : $request;
+		
+		$this->format()
+			->log()
+			->intercept();
 	}
 	
 	private function format()
@@ -43,19 +45,6 @@ class ErrorResponse
 
 		// used for logging only
 		$this->trace = $this->exception->getTrace();
-		
-		//auth exception
-		if($this->exception instanceof \Illuminate\Auth\AuthenticationException) {
-			$this->format['code'] = 401;
-		}
-
-		if($this->exception instanceof EmptyResultException) {
-			$this->format['code'] = 'EMPTY_RESULT';
-		}
-
-		if ($this->exception instanceof \Illuminate\Database\QueryException) {
-			// $this->format['message'] = 'SQL Error';
-		}
 
 		return $this;
 	}
@@ -67,13 +56,25 @@ class ErrorResponse
 	*/
 	private function log()
 	{
-		$request = $this->request ? $this->request->all() : null;
-
 		ErrorLogger::ins()->log(
 			json_encode($this->format),
 			json_encode($this->trace),
-			json_encode($request)	
+			json_encode($this->request)	
 		);
+
+		return $this;
+	}
+
+	private function intercept()
+	{
+		//auth exception
+		if($this->exception instanceof \Illuminate\Auth\AuthenticationException) {
+			$this->format['code'] = 401;
+		}
+
+		if ($this->exception instanceof \Illuminate\Database\QueryException) {
+			$this->format['message'] = 'SQL Error';
+		}
 	}
 	
 	/**

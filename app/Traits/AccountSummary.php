@@ -57,20 +57,24 @@ trait AccountSummary
 
 	protected function getInternetBill()
 	{
-		$internet = InternetSubscriptionService::ins()
-			->getModel()
-			->where([
-				'account_id' => $this->account->account_id,
-				'active' => 1,
-			])
-			->whereNotNull('installed_at')
-			->first();
+		$internet = InternetSubscriptionService::ins()->first([
+			'account_id' => $this->account->account_id,
+			'active' => 1
+		]);
 
 		if (!$internet) {
-			return $internet;
+			return;
 		};
 		
-		$installedAt = Carbon::parse($internet->installed_at);
+		$startDate = Carbon::parse($internet->start_date);
+		$carbonDueDate = getPaymentDue($this->dueDate);
+		
+		// if plan is registered post due date
+		if ($startDate->gte($carbonDueDate)) {
+			// return $internet;
+			return null;
+		}
+
 		$cutoff = getCutoff();
 		$prevCutoff = $cutoff->copy()->subMonthNoOverflow();
 
@@ -80,8 +84,8 @@ trait AccountSummary
 		//no of days from prev to current cutoff
 		$ndays = $cutoff->diffInDays($prevCutoff);
 
-		//no of days from installation to cut off
-		$n = $installedAt->diffInDays($cutoff);
+		//no of days from plan start_date to cut off
+		$n = $startDate->diffInDays($cutoff);
 
 		//get per day and amount due
 		$perDay = $internet->plan->monthly / $ndays;
@@ -90,22 +94,23 @@ trait AccountSummary
 		$proRatedAmount = $perDay * $n;
 
 		//get pro-rated fee id
-		$fee = FeeService::ins()->findFirst('code', 'pro-rated');
+		$fee = FeeService::ins()->findFirst('code', 'pro_rated');
+
+		$this->setAttribute($internet, [
+			'n_days' => $n,
+			'days_in_month' => $ndays,
+			'per_day' => round($perDay, 2),
+			'cut_off' => $cutoff->format('Y-m-d')
+		]);
 
 		//if pro rated less than 15 days then include to next due date
 		if ($n < $proRated) {
 			$nextDueDate = nextDueDate($this->dueDate);
 
-			$data = [
-				'plan' => $internet->plan->name,
-				'monthly' => $internet->plan->monthly,
-				'installed_at' => $installedAt->format('Y-m-d'),
-				'cutoff' => $cutoff->format('Y-m-d'),
-				'n_days' => $n,
-				'days_in_month' => $ndays,
-				'per_day' => round($perDay, 2),
-				'pro_rated' => round($proRatedAmount, 2)
-			];
+			$this->setAttribute($internet, [
+				'pro_rated' => round($proRatedAmount, 2),
+				'is_pro_rated' => true
+			]);
 
 			return OtherCharge::updateOrCreate([
 				'account_id' => $this->account->account_id,
@@ -126,8 +131,10 @@ trait AccountSummary
 				$isProRated = 0;
 			} 
 
-			$internet->setAttribute('amount_due', $amountDue);
-			$internet->setAttribute('is_pro_rated', $isProRated);
+			$this->setAttribute($internet, [
+				'amount_due' => $amountDue,
+				'is_pro_rated' => $isProRated
+			]);
 
 			return $internet;
 		}
@@ -163,9 +170,10 @@ trait AccountSummary
 			->getModel()
 			->where([
             	'account_id' => $this->account->account_id,
-            	'other_payment' => 0
+            	'other_payment' => 0,
+            	'code' => 'bill'
             ])
-            ->where('due_date', '<', myCarbonize($this->dueDate)->endOfMonth())
+            ->where('due_date', '<', $this->dueDate)
             ->where('current_balance', '>', 0)
             ->orderBy('due_date', 'desc')
             ->orderBy('created_at', 'desc')
@@ -196,5 +204,12 @@ trait AccountSummary
 				'account_id' => $this->account->account_id,
 				'due_date' => $this->dueDate
 			]);
+	}
+
+	private function setAttribute(&$model, array $data)
+	{
+		foreach($data as $key => $value) {
+			$model->setAttribute($key, $value);
+		}
 	}
 }

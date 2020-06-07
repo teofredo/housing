@@ -10,6 +10,7 @@ use App\Services\{
 	WaterReadingService,
 	ErrorResponse
 };
+use Illuminate\Support\Arr;
 
 class WaterReadingsController extends Controller
 {
@@ -24,12 +25,9 @@ class WaterReadingsController extends Controller
     ) {
     	try {
     		$data = $request->all();
-
-    		$validator
-                ->setConstraints(['account_id' => $request->account_id ?? null])
-                ->validate($data);
+    		$validator->validate($data);
     		
-    		$resource = $readingService->addWaterReading($data);
+    		$resource = $readingService->saveWaterReading($data);
             $resource = $this->fractal->item($resource, $this->transformer)->get();
 
             return response($resource);
@@ -39,5 +37,29 @@ class WaterReadingsController extends Controller
     	$errorResponse = new ErrorResponse($e, $request);
     	
     	return $errorResponse->toJson();
+    }
+    
+    public function putOverride(
+        $id=null, 
+        Request $request,
+        WaterReadingService $readingService,
+        WaterReadingValidator $validator
+    ) {
+        try {
+            $data = $request->all();
+            $data['update_id'] = $id;
+            
+            $validator->validate($data);
+            
+            $resource = $readingService->saveWaterReading(Arr::except($data, 'update_id'), $id);
+            $resource = $this->fractal->item($resource, $this->transformer)->get();
+
+            return response($resource);
+            
+        } catch(\Exception $e) {}
+        
+        $errorResponse = new ErrorResponse($e, $request);
+        
+        return $errorResponse->toJson();   
     }
 }

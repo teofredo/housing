@@ -18,8 +18,8 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
     
-    protected $casts = [
-        'email_verified_at' => 'datetime',
+    protected $dates = [
+        'email_verified_at', 'created_at', 'updated_at', 'deleted_at'
     ];
     
     public function findForPassport($username)

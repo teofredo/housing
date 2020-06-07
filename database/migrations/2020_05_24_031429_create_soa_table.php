@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMonthlyDuesTable extends Migration
+class CreateSoaTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,19 +13,14 @@ class CreateMonthlyDuesTable extends Migration
      */
     public function up()
     {
-        Schema::create('monthly_dues', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('code');
+        Schema::create('soa', function (Blueprint $table) {
+            $table->increments('soa_id');
             $table->string('soa_no', 20);
             $table->integer('account_id');
             $table->string('due_date', 10);
-            $table->decimal('amount_due');
-            $table->mediumText('data')
-                ->nullable()
-                ->default(null);
-                
             $table->timestamps();
-            $table->unique(['code', 'account_id', 'due_date']);
+            $table->softDeletes();
+            $table->unique(['soa_no', 'account_id', 'due_date']);
         });
     }
 
@@ -36,6 +31,6 @@ class CreateMonthlyDuesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('monthly_dues');
+        Schema::dropIfExists('soa');
     }
 }

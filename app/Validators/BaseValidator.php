@@ -11,8 +11,16 @@ abstract class BaseValidator
 	
 	protected $constraints = [];
 	
+	protected $data;
+	
 	public function validate(array $data=[], array $rules=[], array $messages=[])
 	{
+		$this->data = $data;
+		
+		if (isset($data['update_id'])) {
+			unset($data['update_id']);
+		}
+		
 		if($this->constraints) {
 			$this->overrideRules();
 		}

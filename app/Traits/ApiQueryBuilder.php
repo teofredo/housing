@@ -96,6 +96,12 @@ trait ApiQueryBuilder
 			$readfn = 'first';
 		}
 
+		if(isset($data['_latest'])) {
+			$where = $this->parseWhere($data['_latest']);
+			$model = $model->where($where)->latest();
+			$readfn = 'first';
+		}
+
 		if(isset($data['_orderby'])) {
         	$orderBy = $this->parseOrderBy($data['_orderby']);
         	foreach($orderBy as $key => $value) {

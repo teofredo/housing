@@ -3,22 +3,35 @@ namespace App\Validators;
 
 class WaterReadingValidator extends BaseValidator
 {
-	protected $rules = [
-		'account_id' => 'required|integer',
-		'meter_no' => 'required|string',
+	private $rules = [
+		'account_id' => 'sometimes|required|integer',
+		'meter_no' => 'sometimes|required|string',
 		'curr_read' => 'required|numeric'
 	];
 	
 	protected $messages = [
-		'due_date.unique' => 'water reading for this due date already done.'
+		'due_date.unique' => 'a reading already made for the selected due date'
 	];
-
-	protected function overrideRules()
+	
+	public function getRules()
 	{
-		$this->rules['due_date'] = [
+		$dueDateRules = [
+			'sometimes',
 			'required',
-			'date_format:' . config('fairchild.formats.due_date'),
-			"unique:water_readings,due_date,NULL,id,account_id,{$this->constraints['account_id']}"
+			'date_format:' . config('fairchild.formats.due_date')
 		];
+		
+		// post
+		if (!isset($this->data['update_id'])) {
+			array_push($dueDateRules, "unique:water_readings,due_date,NULL,id,account_id,{$this->data['account_id']}");
+		
+		// put
+		} else {
+			array_push($dueDateRules, "unique:water_readings,due_date,{$this->data['update_id']},id,account_id,{$this->data['account_id']}");
+		}
+		
+		return array_merge($this->rules, [
+			'due_date' => $dueDateRules
+		]);
 	}
 }

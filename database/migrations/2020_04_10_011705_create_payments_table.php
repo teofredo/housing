@@ -15,13 +15,18 @@ class CreatePaymentsTable extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->bigIncrements('payment_id');
+            $table->string('code', 30)
+                ->nullable()
+                ->default(null);
+
             $table->integer('account_id');
-            $table->string('reference_no')
+            $table->string('soa_no', 20);
+
+            $table->string('or_no', 30)
                 ->nullable()
                 ->default(null);
                 
             $table->decimal('amount_due')->default(0);
-            $table->decimal('amount_received')->default(0);
             $table->decimal('amount_paid')->default(0);
             $table->decimal('current_balance')->default(0);
             $table->string('due_date', 10);
@@ -29,7 +34,7 @@ class CreatePaymentsTable extends Migration
                 ->default(0)
                 ->comment('not included in month due, recording only');
 
-            $table->date('paid_at')
+            $table->dateTime('paid_at')
                 ->nullable()
                 ->default(null);
 
@@ -38,7 +43,7 @@ class CreatePaymentsTable extends Migration
                 ->default(null);
 
             $table->timestamps();
-            $table->unique(['account_id', 'due_date', 'reference_no']);
+            $table->unique(['account_id', 'due_date', 'or_no']);
         });
     }
 

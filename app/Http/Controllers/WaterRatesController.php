@@ -14,10 +14,14 @@ class WaterRatesController extends Controller
     protected $transformer = WaterRateTransformer::class;
     protected $validator = WaterRateValidator::class;
     
-    public function postOverride(
-    	Request $request,
-    	WaterRateValidator $validator
-    ) {
-    	return $this->setVConstraints(['min_m3' => $request->min_m3 ?? null])->post($request);
+    public function putOverride($id=null, Request $request)
+    {
+    	$data = $request->all();
+    	
+    	if (isset($data['min_m3']) && $data['min_m3'] > 0) {
+    		$data['min_fee'] = 0;
+    	}
+    	
+    	return $this->put($id, $request, $data);
     }
 }

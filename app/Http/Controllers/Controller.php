@@ -16,8 +16,14 @@ use App\Services\{
 
 use Illuminate\Support\Carbon;
 use App\Traits\ApiQueryBuilder;
-use App\Exceptions\EmptyResultException;
-use Illuminate\Support\Str;
+use App\Exceptions\{
+    ValidationException,
+    EmptyResultException
+};
+use Illuminate\Support\{
+    Str,
+    Arr
+};
 
 class Controller extends BaseController
 {
@@ -91,10 +97,6 @@ class Controller extends BaseController
                 //api query builder
                 $resource = $this->buildQuery($request);
 
-                if(!$resource) {
-                    throw new EmptyResultException('resource returned an empty result');
-                }
-
                 if($resource instanceof \Illuminate\Database\Eloquent\Collection) {
                     return $this->fractal
                         ->collection($resource, $this->transformer)
@@ -103,6 +105,10 @@ class Controller extends BaseController
                 } 
     		} else {
                 $resource = $this->model->find($id);
+            }
+            
+            if (!$resource && $includes) {
+                return response()->json([ 'data' => [] ]);
             }
 
     		return $this->fractal
@@ -117,7 +123,7 @@ class Controller extends BaseController
         return $errorResponse->toJson();
     }
     
-    public function post(Request $request)
+    public function post(Request $request, $params=null)
     {
         try {
             // if request is calling special function
@@ -132,7 +138,7 @@ class Controller extends BaseController
                 throw new \Exception('undefined special function ' . $_function);
             }
 
-            $data = $request->all();
+            $data = $params ?? $request->all();
             
             $validator = $this->validator ?? null;
             if($validator) {
@@ -151,7 +157,74 @@ class Controller extends BaseController
         
         $errorResponse = new ErrorResponse($e, $request);
         
-        return $errorResponse->toJson();   
+        return $errorResponse->toJson();
+    }
+
+    public function put($id=null, Request $request, $params=null)
+    {
+        try {
+            if (!$id) {
+                throw new ValidationException('Invalid ID');
+            }
+            
+            // if request is calling special function
+            if($_function = $request->get('_function')) {
+                $_function = '_put' . Str::studly($_function);
+                
+                if(method_exists($this, $_function)
+                    && is_callable([$this, $_function])) {
+                    return $this->$_function($id, $request);
+                }
+
+                throw new \Exception('undefined special function ' . $_function);
+            }
+            
+            $data = $params ?? $request->all();            
+            $data['update_id'] = $id;
+
+            $validator = $this->validator ?? null;
+            if($validator) {
+                $this->validator = new $validator;
+                $this->validator
+                    ->setConstraints($this->vConstraints)
+                    ->validate($data);
+            } 
+
+            $primaryKey = $this->model->getKeyName();
+
+            $resource = null;
+            $data = Arr::except($data, 'update_id');
+            if ($success = $this->model->where($primaryKey, $id)->update($data)) {
+                $resource = $this->model->find($id);
+            }
+
+            $resource = $this->fractal->item($resource, $this->transformer)->get();
+            
+            return response($resource);
+
+        } catch(\Exception $e) {}
+
+        $errorResponse = new ErrorResponse($e, $request);
+        
+        return $errorResponse->toJson();
+    }
+    
+    public function delete($id=null, Request $request)
+    {
+        try {
+            if ($success = $this->model->find($id)->delete()) {
+                return response()->json([
+                    'success' => $success
+                ]);
+            }
+            
+            throw new \Exception('Delete failed');
+            
+        } catch(\Exception $e) {}
+        
+        $errorResponse = new ErrorResponse($e, $request);
+        
+        return $errorResponse->toJson();
     }
     
     public function requestToken(

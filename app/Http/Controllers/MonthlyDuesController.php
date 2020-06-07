@@ -76,8 +76,9 @@ class MonthlyDuesController extends Controller
     public function _getSummary($id, Request $request)
     {
         $dueDate = $request->get('due_date', null);
+        $accountId = $request->get('account_id', null);
 
-        $result = MonthlyDueService::ins()->getSummary($dueDate);
+        $result = MonthlyDueService::ins()->getSummary($dueDate, $accountId);
 
         return response()->json(['data' => $result]);
     }

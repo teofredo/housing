@@ -10,6 +10,7 @@ use App\Services\{
     ConfigService,
     ErrorResponse
 };
+use Carbon\Carbon;
 
 class ConfigController extends Controller
 {
@@ -37,12 +38,18 @@ class ConfigController extends Controller
     	return $errorResponse->toJson();
     }
 
-    public function _getDueDate($id=null, Request $request)
+    public function _getPaymentDue($id=null, Request $request)
     {
-        $dueDate = getDueDate();
-
+        $paymentDue = getPaymentDue($request->due_date ?? null);
         return response()->json([
-            'data' => ['due_date' => $dueDate]
-        ]);
+            'data' => ['payment_due' => $paymentDue]
+        ]); 
+    }
+    
+    public function _getServerTime($id=null, Request $request)
+    {
+        return response()->json([
+            'data' => ['server_time' => Carbon::now()]
+        ]); 
     }
 }

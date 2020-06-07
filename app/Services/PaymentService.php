@@ -12,25 +12,7 @@ class PaymentService extends AbstractService
 	{
 		return Payment::class;
 	}
-
-	public function addPayment(array $data)
-	{
-		$totalDue = $data['amount_due'];
-		$difference = $totalDue - $data['amount_received'];
-
-		//if sufficient amount receivedice
-		if($difference <= 0) {
-			$data['amount_paid'] = $totalDue;
-			$data['current_balance'] = 0;
-		} else {
-			$data['amount_paid'] = $data['amount_received'];
-			$data['current_balance'] = $difference;
-		}
-
-		return $this->add($data);
-	}
-
-
+	
 	public function initPayments($dueDate)
 	{
 		$monthDue = MonthlyDueService::ins()->findFirst('due_date', $dueDate);
@@ -41,13 +23,12 @@ class PaymentService extends AbstractService
 		AccountService::ins()
 			->getModel()
 			->where('status', 'active')
-			->whereRaw('accounts.account_id NOT IN(select account_id from payments WHERE due_date = ? and other_payment = ?)', [$dueDate, 0])
+			->whereRaw('accounts.account_id NOT IN(select account_id from payments WHERE due_date = ? and other_payment = 0 and or_no is not null and paid_at is not null)', [$dueDate])
 			->get()
 			->each(function($model) use($dueDate){
-				$data = [
-					'account_id' => $model->account_id,
-					'due_date' => $dueDate,
-					'amount_due' => 0
+				$data = [					
+					'amount_due' => 0,
+					'description' => "Monthly Bill - {$dueDate}"
 				];
 
 				// get month dues
@@ -56,7 +37,6 @@ class PaymentService extends AbstractService
 					'due_date' => $dueDate
 				]);
 
-				$penalty = 0;
 				foreach($monthDues as $m) {
 					switch($m->code) {
 						case 'adjustments':
@@ -67,18 +47,31 @@ class PaymentService extends AbstractService
 						case 'internet':
 						case 'other_charges':
 						case 'prev_balance':
-							$data['amount_due'] += $m->amount_due;
-							continue;
-
 						case 'penalty':
-							$penalty += $m->amount_due;
+							$data['amount_due'] += $m->amount_due;
 							continue;
 					}
 				}
 
-				$data['current_balance'] = $data['amount_due'] + $penalty;
+				$data['current_balance'] = $data['amount_due'];
 
-				PaymentService::ins()->add($data);
+				// get soa no
+				$soa = SoaService::ins()->latest([
+					'account_id' => $model->account_id,
+					'due_date' => $dueDate
+				]);
+
+				if(!$soa) {
+					throw new \Exception('soa not found.');
+				}
+
+				$data['soa_no'] = $soa->soa_no;
+
+				Payment::updateOrCreate([
+					'code' => 'bill',
+					'account_id' => $model->account_id,
+					'due_date' => $dueDate
+				], $data);
 			});
 	}
 }

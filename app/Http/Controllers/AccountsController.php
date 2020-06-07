@@ -26,10 +26,7 @@ class AccountsController extends Controller
     ) {
     	try {
     		$data = $request->all();
-    	
-    		$validator
-                ->setConstraints([ 'block_id' => $data['block_id'] ?? null ])
-                ->validate($data);
+    		$validator->validate($data);
     		
     		DB::beginTransaction();
     		
@@ -55,12 +52,7 @@ class AccountsController extends Controller
     public function _getAccountSummary($id, Request $request)
     {
         try {
-            
-
             // $summary = AccountService::ins()->getAccountSummary($id);
-
-            
-
         } catch(\Exception $e) {}
 
         DB::rollBack();

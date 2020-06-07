@@ -8,7 +8,10 @@ use App\Services\{
     AccountService,
     OtherChargeService,
     PaymentService,
-    MonthlyDueService
+    MonthlyDueService,
+    WaterRateService,
+    WaterReadingService,
+    InternetSubscriptionService
 };
 use Carbon\Carbon;
 
@@ -16,18 +19,28 @@ class TestController extends Controller
 {
     public function test()
     {
-        // $result =   bcrypt('zichri');
+        InternetSubscriptionService::ins()->cancelPlan(3, ['cancel_plan'=>true,'cancel_reason'=>'test']);
+        die;
+        // WaterReadingService::ins()->saveWaterReading([
+        //     'account_id' => 1,
+        //     'meter_no' => 'BLK1LOT1',
+        //     'curr_read' => 10,
+        //     'due_date' => '03/2020',
+        //     'read_by' => 'lennon'
+        // ], 3);
+        // $result = MonthlyDueService::ins()->getModel()->getKeyName();
+        // $result = getPaymentDue();
+        // $result = MonthlyDueService::ins()->getSummary('04/2020', 5)->toArray();
         // $result = MonthlyDueService::ins()->generateMonthDue('04/2020');
-        $result = PaymentService::ins()->initPayments('04/2020');
-        
+        // $result = PaymentService::ins()->initPayments('04/2020');
         // $result = MonthlyDueService::ins()->generateMonthDue();
         // $account = AccountService::ins()->find(1);
         // $result = MonthlyDueService::ins()->summarize($account);
-        dd($result);
+        // dd($result);
 
-        $result = \App\Models\Householder::find(1)->with('account')->get()->toJson();
-        echo $result;
-        die;
+        // $result = \App\Models\Householder::find(1)->with('account')->get()->toJson();
+        // echo $result;
+        // die;
         // $result = \App\Models\Block::with('lots')->get()->toJson();
         // print_r($result);
         // die;

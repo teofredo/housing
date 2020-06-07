@@ -11,6 +11,7 @@ use App\Services\{
 	PaymentService
 };
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class PaymentsController extends Controller
 {
@@ -18,31 +19,33 @@ class PaymentsController extends Controller
     protected $transformer = PaymentTransformer::class;
     protected $validator = PaymentValidator::class;
 
-    public function postOverride(
-    	Request $request,
-    	PaymentService $paymentService,
-    	PaymentValidator $validator
-    ) {
-    	try {
-    		$data = $request->all();
+    public function postOverride(Request $request)
+    {
+    	$data = $request->all();
 
-    		$validator->validate($data);
+        if (!isset($data['current_balance'])
+            && isset($data['amount_due'])
+            && isset($data['amount_paid'])) {
+            
+            $data['current_balance'] = $data['amount_due'] - $data['amount_paid'];
+        }
 
-    		DB::beginTransaction();
+        return $this->post($request, $data);
+    }
 
-    		$resource = $paymentService->addPayment($data);
-    		$resource = $this->fractal->item($resource, $this->transformer)->get();
+    public function putOverride($id=null, Request $request)
+    {
+        $data = $request->all();
 
-    		DB::commit();
+        if (!isset($data['current_balance'])
+            && isset($data['amount_due'])
+            && isset($data['amount_paid'])) {
+            
+            $data['current_balance'] = $data['amount_due'] - $data['amount_paid'];
+        }
 
-    		return response($resource);
+        $data['paid_at'] = $data['paid_at'] ?? Carbon::now()->format('Y-m-d');
 
-    	} catch(\Exception $e) {}
-
-    	DB::rollBack();
-
-    	$errorResponse = new ErrorResponse($e, $request);
-
-    	return $errorResponse->toJson();
+        return $this->put($id, $request, $data);
     }
 }

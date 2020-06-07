@@ -10,6 +10,10 @@ class Householder extends Base
 
     protected $primaryKey = 'householder_id';
     
+    protected $dates = [
+        'moved_in', 'created_at', 'updated_at', 'deleted_at'
+    ];
+    
     public function lot()
     {
     	return $this->belongsTo(__NAMESPACE__ . '\\Lot', 'lot_id', 'lot_id');

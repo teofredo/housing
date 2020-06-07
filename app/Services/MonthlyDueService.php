@@ -26,38 +26,60 @@ class MonthlyDueService extends AbstractService
 
 	protected $dueDate;
 
+	private $soa;
+
 	public function model()
 	{
 		return MonthlyDue::class;
 	}
 
-	public function getSummary($dueDate)
+	public function getSummary($dueDate, $accountId=null)
 	{
-		return $this->model
+		$result = $this->model
 			->where('due_date', $dueDate)
-			->join('accounts', 'accounts.account_id', '=', 'monthly_dues.account_id')
-			->select(
+			->where('code', '<>', 'adjustments');
+
+			if ($accountId) {
+				$result->where('monthly_dues.account_id', $accountId);
+			}
+
+			$result->join('accounts', 'accounts.account_id', '=', 'monthly_dues.account_id')
+			->select(['amount_due' => function($query) {
+				$query->selectRaw('sum(amount_due) - (SELECT SUM(amount_due) FROM monthly_dues WHERE code = ? AND account_id = accounts.account_id AND due_date = monthly_dues.due_date GROUP BY account_id, due_date)', ['adjustments']);
+			}])
+			->addSelect(
 				'accounts.account_id as account_id', 
 				'account_no',
 				'account_name',
 				'due_date'
 			)
-			->addSelect(['amount_due' => $this->model
-				->where('code', '<>', 'adjustments')
-				->selectRaw('sum(amount_due) - (select sum(amount_due) from monthly_dues where code = ? group by account_id, due_date)', ['adjustments'])
-				->groupBy('account_id')
-				->groupBy('due_date')
-			])
 			->groupBy('account_id')
-			->groupBy('due_date')
-			->get();
+			->groupBy('due_date');
+
+		return $accountId ? $result->first() : $result->get(); 
 	}
 
 	public function generateMonthDue($dueDate)
 	{
 		$this->dueDate = $dueDate;
 
+		$soa = SoaService::ins()->first(['due_date' => $this->dueDate]);
+		if ($soa) {
+			throw new \Exception("SOA for {$this->dueDate} already generated. Aborting process.");
+		}
+
 		Account::all()->each(function($account) {
+			// create soa
+			$this->soa = SoaService::ins()->add([
+				'soa_no' => Carbon::now()->format('my') . $account->account_id,
+				'account_id' => $account->account_id,
+				'due_date' => $this->dueDate
+			]);
+
+			if(!$this->soa) {
+				throw new \Exception('failed to generate soa.');
+			}
+
 			$summary = $this->summarize($account);
 
 			foreach($summary as $key => $value) {
@@ -145,6 +167,7 @@ class MonthlyDueService extends AbstractService
 			'account_id' => $this->account->account_id,
 			'due_date' => $this->dueDate
 		], [
+			'soa_no' => $this->soa->soa_no,
 			'amount_due' => $data['amount_due'] ?? 0,
 			'data' => $data['data'] ?? null
 		]);	
