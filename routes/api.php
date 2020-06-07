@@ -47,7 +47,7 @@ Route::group([
 	
 	$r->prefix('internet-plans')->group(function($r){
 		$r->get('/{id?}', 'InternetPlansController@index');
-		$r->post('/', 'InternetPlansController@post');
+		$r->post('/', 'InternetPlansController@postOverride');
 		$r->put('/{id?}', 'InternetPlansController@put');
 		$r->delete('/{id?}', 'InternetPlansController@delete');
 	});
@@ -70,7 +70,7 @@ Route::group([
 		$r->get('/{id?}', 'InternetSubscriptionsController@index');
 		$r->post('/', 'InternetSubscriptionsController@post');
 		$r->put('/{id?}', 'InternetSubscriptionsController@put');
-		$r->delete('/{id?}', 'InternetSubscriptionsController@delete');
+		$r->delete('/{id?}', 'InternetSubscriptionsController@deleteOverride');
 	});
 	
 	$r->prefix('water-readings')->group(function($r){

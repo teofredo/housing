@@ -20,11 +20,49 @@ class InternetSubscriptionsController extends Controller
     protected $transformer = InternetSubscriptionTransformer::class;
     protected $validator = InternetSubscriptionValidator::class;
     
-    public function _putCancelPlan(
-        $id=null, 
-        Request $request,
-        InternetSubscriptionService $subscriptionService
-    ) {
+    public function deleteOverride($id, Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $subscription = InternetSubscription::findOrFail($id);
+            $subscription->active = null;
+            $subscription->save();
+            $subscription->delete();
+            
+            DB::commit();
+            
+            return response()->json(['success' => true]);
+            
+        } catch(\Exception $e) {}
+        
+        DB::rollBack();
+        
+        $errorResponse = new ErrorResponse($e, $request);
+        
+        return $errorResponse->toJson();
+    }
+    
+    public function _getTerminationSummary($id=null, Request $request)
+    {
+        $subscriptionService = new InternetSubscriptionService;
+        
+        try {
+            $result = $subscriptionService->getTerminationSummary($id);
+            
+            return response()->json(['data' => $result->summary]);
+            
+        } catch(\Exception $e) {}
+        
+        $errorResponse = new ErrorResponse($e, $request);
+        
+        return $errorResponse->toJson();
+    }
+    
+    public function _putCancelPlan($id=null, Request $request)
+    {
+        $subscriptionService = new InternetSubscriptionService;
+        
         try {
             $data = $request->all();
             
@@ -35,11 +73,37 @@ class InternetSubscriptionsController extends Controller
             
             DB::beginTransaction();
             
-            $subscriptionService->cancelPlan($id, $data);
+            $subscription = $subscriptionService->cancelPlan($id, $data);
             
             DB::commit();
             
-            return response()->json(['success' => true]);
+            return $this->fractal->item($subscription, $this->transformer)->get();
+            
+        } catch(\Exception $e) {}
+        
+        DB::rollBack();
+        
+        $errorResponse = new ErrorResponse($e, $request);
+        
+        return $errorResponse->toJson();
+    }
+    
+    public function _putChangePlan($id=null, Request $request)
+    {
+        try {
+            $data = $request->all();
+            
+            if (!isset($data['plan_id'])) {
+                throw new ValidationException('plan_id is required.');
+            }
+            
+            DB::beginTransaction();
+            
+            $response = InternetSubscriptionService::ins()->changePlan($id, $data);
+            
+            DB::commit();
+            
+            return response()->json($response);
             
         } catch(\Exception $e) {}
         

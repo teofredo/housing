@@ -209,7 +209,7 @@ class Controller extends BaseController
         return $errorResponse->toJson();
     }
     
-    public function delete($id=null)
+    public function delete($id=null, Request $request)
     {
         try {
             if ($success = $this->model->find($id)->delete()) {

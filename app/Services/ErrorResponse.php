@@ -22,7 +22,7 @@ class ErrorResponse
 	{
 		$this->exception = $exception ?? null;
 		
-		$this->request = $request;
+		$this->request = $request instanceof Request ? $request->all() : $request;
 		
 		$this->format()
 			->log()

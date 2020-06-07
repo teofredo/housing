@@ -17,7 +17,6 @@ class CreateInternetSubscriptionsTable extends Migration
             $table->bigIncrements('subscription_id');
             $table->integer('account_id');
             $table->integer('plan_id');
-            $table->tinyInteger('installed')->default(0);
             $table->dateTime('start_date');
             $table->dateTime('end_date');
                 
@@ -29,7 +28,14 @@ class CreateInternetSubscriptionsTable extends Migration
                 ->nullable()
                 ->default(null);
                 
-            $table->tinyInteger('active')->default(1);
+            $table->tinyInteger('active')
+                ->nullable()
+                ->default(1);
+                
+            $table->integer('last_subscription_id')
+                ->nullable()
+                ->default(null);
+            
             $table->dateTime('installed_at')
                 ->nullable()
                 ->default(null);

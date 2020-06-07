@@ -57,24 +57,22 @@ trait AccountSummary
 
 	protected function getInternetBill()
 	{
-		$internet = InternetSubscriptionService::ins()
-			->getModel()
-			->where([
-				'account_id' => $this->account->account_id,
-				'active' => 1,
-			])
-			->whereNotNull('installed_at')
-			->first();
+		$internet = InternetSubscriptionService::ins()->first([
+			'account_id' => $this->account->account_id,
+			'active' => 1
+		]);
 
 		if (!$internet) {
-			return $internet;
+			return;
 		};
 		
-		$installedAt = Carbon::parse($internet->installed_at);
+		$startDate = Carbon::parse($internet->start_date);
 		$carbonDueDate = getPaymentDue($this->dueDate);
-
-		if ($installedAt->gte($carbonDueDate)) {
-			return $internet;
+		
+		// if plan is registered post due date
+		if ($startDate->gte($carbonDueDate)) {
+			// return $internet;
+			return null;
 		}
 
 		$cutoff = getCutoff();
@@ -86,8 +84,8 @@ trait AccountSummary
 		//no of days from prev to current cutoff
 		$ndays = $cutoff->diffInDays($prevCutoff);
 
-		//no of days from installation to cut off
-		$n = $installedAt->diffInDays($cutoff);
+		//no of days from plan start_date to cut off
+		$n = $startDate->diffInDays($cutoff);
 
 		//get per day and amount due
 		$perDay = $internet->plan->monthly / $ndays;
@@ -96,7 +94,7 @@ trait AccountSummary
 		$proRatedAmount = $perDay * $n;
 
 		//get pro-rated fee id
-		$fee = FeeService::ins()->findFirst('code', 'pro-rated');
+		$fee = FeeService::ins()->findFirst('code', 'pro_rated');
 
 		$this->setAttribute($internet, [
 			'n_days' => $n,
